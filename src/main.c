@@ -99,12 +99,26 @@ void clear_color_buffer(uint32_t color) {
     }
 }
 
+void draw_grid(int rows, int columns) {
+    for (int y = 0; y < window_height; y++) {
+        for (int x = 0; x < window_width; x++) {
+            if (x % rows == 0 || y % columns == 0) {
+                color_buffer[(window_width * y) + x] = 0xFFFFFFFF;
+            } else {
+                color_buffer[(window_width * y) + x] = 0xFF000000;
+            }
+        }
+    }
+}
+
 void render(void) {
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     SDL_RenderClear(renderer);
 
+    draw_grid(70, 70);
+
     render_color_buffer();
-    clear_color_buffer(0xFFFFFF00);
+    clear_color_buffer(0xFF000000);
     
     SDL_RenderPresent(renderer);
 }
