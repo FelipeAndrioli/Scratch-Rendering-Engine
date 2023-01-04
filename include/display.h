@@ -21,5 +21,6 @@ void destroy_window(void);
 void draw_grid_dots(int column, int row);
 void draw_grid_lines(int column, int row);
 void draw_rect(int pos_x, int pos_y, int width, int height, uint32_t color);
+void draw_pixel(int x, int y, uint32_t color);
 
 #endif

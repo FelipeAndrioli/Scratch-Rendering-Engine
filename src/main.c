@@ -52,7 +52,7 @@ void render(void) {
 
     draw_grid_lines(100, 100);
     draw_rect(1500, 500, 300, 170, 0xFFFF00FF);
-
+    
     render_color_buffer();
     clear_color_buffer(0xFF000000);
     
