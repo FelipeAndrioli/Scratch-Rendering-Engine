@@ -87,9 +87,7 @@ void update(void) {
     for (int i = 0; i < N_POINTS; i++) {
         vec3_t point = cube_points[i];
         
-        point = vec3_rotate_x(point, cube_rotation.x);
-        point = vec3_rotate_y(point, cube_rotation.y);
-        point = vec3_rotate_z(point, cube_rotation.z);
+        point = vec3_rotate(point, cube_rotation);
         point = vec3_translate(point, cube_translation);
         point = vec3_scale(point, cube_scalation);
 

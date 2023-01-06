@@ -30,6 +30,19 @@ vec3_t vec3_rotate_z(vec3_t v, float angle) {
     return rotated_vector;
 }
 
+vec3_t vec3_rotate(vec3_t v, vec3_t rotation) {
+    vec3_t rotated_vector = v;
+
+    if (rotation.x > 0.0f) 
+        rotated_vector = vec3_rotate_x(rotated_vector, rotation.x);
+    if (rotation.y > 0.0f) 
+        rotated_vector = vec3_rotate_y(rotated_vector, rotation.y);
+    if (rotation.z > 0.0f) 
+        rotated_vector = vec3_rotate_z(rotated_vector, rotation.z);
+
+    return rotated_vector;
+}
+
 vec3_t vec3_translate(vec3_t v, vec3_t amount) {
     vec3_t translated_vector = {
         v.x + amount.x,
