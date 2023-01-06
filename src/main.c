@@ -11,6 +11,9 @@ vec3_t cube_points[N_POINTS];
 vec2_t projected_points[N_POINTS];
 
 vec3_t camera_position = {0, 0, -5};
+vec3_t cube_rotation = {0.0f, 0.0f, 0.0f};
+vec3_t cube_translation = {0.0f, 0.0f, 0.0f};
+vec3_t cube_scalation = {1.0f, 1.0f, 1.0f};
 
 float fov_factor = 640;
 
@@ -77,11 +80,22 @@ vec2_t perspective_projection(vec3_t point) {
 
 void update(void) {
 
+    cube_rotation.x += 0.01f;
+    cube_rotation.y += 0.01f;
+    cube_rotation.z += 0.01f;
+
     for (int i = 0; i < N_POINTS; i++) {
         vec3_t point = cube_points[i];
+        
+        point = vec3_rotate_x(point, cube_rotation.x);
+        point = vec3_rotate_y(point, cube_rotation.y);
+        point = vec3_rotate_z(point, cube_rotation.z);
+        point = vec3_translate(point, cube_translation);
+        point = vec3_scale(point, cube_scalation);
 
         point.z -= camera_position.z;
         vec2_t projected_point = perspective_projection(point);
+        //vec2_t projected_point = orthographic_projection(point);
         projected_points[i] = projected_point;
     }
 }
@@ -93,7 +107,7 @@ void render(void) {
     for (int i = 0; i < N_POINTS; i++) {
         vec2_t projected_point = projected_points[i];
         draw_rect(projected_point.x + window_width / 2, 
-            projected_point.y + window_height / 2, 4, 4, 0xFFFFFF00);
+            projected_point.y + window_height / 2, 4, 4, 0xFFFF00FF);
     }
     
     render_color_buffer();
