@@ -82,7 +82,11 @@ vec2_t perspective_projection(vec3_t point) {
 void update(void) {
 
     // lock the execution until the execution reaches the desired FPS
-    while (!SDL_TICKS_PASSED(SDL_GetTicks(), previous_frame_time + FRAME_TARGET_TIME));
+    int wait_time = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+
+    if (wait_time > 0 && wait_time < FRAME_TARGET_TIME) {
+        SDL_Delay(wait_time);
+    }
 
     // SDL_GetTicks() return how many miliseconds have passed since the 
     // application have started
