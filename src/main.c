@@ -18,6 +18,7 @@ vec3_t cube_scalation = {1.0f, 1.0f, 1.0f};
 float fov_factor = 640;
 
 bool is_running = false;
+int previous_frame_time = 0;
 
 void setup(void) {
     // Allocate the memory in bytes to holde the entire color buffer
@@ -79,6 +80,13 @@ vec2_t perspective_projection(vec3_t point) {
 }
 
 void update(void) {
+
+    // lock the execution until the execution reaches the desired FPS
+    while (!SDL_TICKS_PASSED(SDL_GetTicks(), previous_frame_time + FRAME_TARGET_TIME));
+
+    // SDL_GetTicks() return how many miliseconds have passed since the 
+    // application have started
+    previous_frame_time = SDL_GetTicks();
 
     cube_rotation.x += 0.01f;
     cube_rotation.y += 0.01f;
