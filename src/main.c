@@ -12,7 +12,10 @@ triangle_t triangles_to_render[N_MESH_FACES];
 vec3_t camera_position = {0, 0, -5};
 vec3_t cube_rotation = {0, 0, 0};
 
+// used by the perspective_projection
 float fov_factor = 640;
+// used by the orthographic_projection
+//float fov_factor = 128;
 
 bool is_running = false;
 int previous_frame_time = 0;
@@ -119,9 +122,7 @@ void render(void) {
 
     for (int i = 0; i < N_MESH_FACES; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw_rect(triangle.points[0].x, triangle.points[0].y, 3, 3, 0xFFFFFF00);
-        draw_rect(triangle.points[1].x, triangle.points[1].y, 3, 3, 0xFFFFFF00);
-        draw_rect(triangle.points[2].x, triangle.points[2].y, 3, 3, 0xFFFFFF00);
+        draw_triangle(triangle, 0xFFFFFF00);
     }
     
     render_color_buffer();
@@ -132,7 +133,6 @@ void render(void) {
 int main(int argc, char *argv[]) {
     
     is_running = initialize_window();
-
     setup();
 
     while(is_running) {
