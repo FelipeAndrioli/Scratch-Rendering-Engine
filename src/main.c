@@ -13,7 +13,6 @@
 triangle_t *triangles_to_render = NULL;
 
 vec3_t camera_position = {0, 0, -5};
-vec3_t cube_rotation = {0, 0, 0};
 
 // used by the perspective_projection
 float fov_factor = 640;
@@ -40,6 +39,9 @@ void setup(void) {
         fprintf(stderr, "Error creating the SDL Texture\n");
         is_running = false;
     }
+
+    // load specifically cube values
+    load_cube_mesh_data();
 }
 
 void process_input(void) {
@@ -87,19 +89,20 @@ void update(void) {
     // Initialize the array
     triangles_to_render = NULL;
 
-    cube_rotation.x += 0.01f;
-    cube_rotation.y += 0.01f;
-    cube_rotation.z += 0.01f;
+    mesh.rotation.x += 0.01f;
+    mesh.rotation.y += 0.01f;
+    mesh.rotation.z += 0.01f;
 
-    for (int i = 0; i < N_MESH_FACES; i++) {
-        face_t mesh_face = mesh_faces[i];
+    int n_faces = array_length(mesh.faces);
+    for (int i = 0; i < n_faces; i++) {
+        face_t mesh_face = mesh.faces[i];
 
         // build the set of three vectors from the triangle
         vec3_t face_vertices[3];
         // minus one because indices starts at 1
-        face_vertices[0] = mesh_vertices[mesh_face.a - 1];
-        face_vertices[1] = mesh_vertices[mesh_face.b - 1];
-        face_vertices[2] = mesh_vertices[mesh_face.c - 1];
+        face_vertices[0] = mesh.vertices[mesh_face.a - 1];
+        face_vertices[1] = mesh.vertices[mesh_face.b - 1];
+        face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
         triangle_t projected_triangle;
 
@@ -107,7 +110,7 @@ void update(void) {
         // vertices
         for (int j = 0; j < 3; j++) {
             vec3_t transformed_vertex = face_vertices[j];
-            transformed_vertex = vec3_rotate(transformed_vertex, cube_rotation);
+            transformed_vertex = vec3_rotate(transformed_vertex, mesh.rotation);
             transformed_vertex.z -= camera_position.z;
             vec2_t projected_point = perspective_projection(transformed_vertex);
 
@@ -141,6 +144,12 @@ void render(void) {
     SDL_RenderPresent(renderer);
 }
 
+void free_resources(void) {
+    free(color_buffer);
+    array_free(mesh.faces);
+    array_free(mesh.vertices);
+}
+
 int main(int argc, char *argv[]) {
     
     is_running = initialize_window();
@@ -153,6 +162,7 @@ int main(int argc, char *argv[]) {
     }
 
     destroy_window();
+    free_resources();
 
     return 0;
 }
