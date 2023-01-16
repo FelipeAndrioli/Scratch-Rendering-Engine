@@ -95,15 +95,15 @@ void draw_rect(int pos_x, int pos_y, int width, int height, uint32_t color) {
 }
 
 void draw_triangle(triangle_t triangle, uint32_t color) {
-    draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x,
+    dda_draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x,
         triangle.points[1].y, color);
-    draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[2].x,
+    dda_draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[2].x,
         triangle.points[2].y, color);
-    draw_line(triangle.points[1].x, triangle.points[1].y, triangle.points[2].x,
+    dda_draw_line(triangle.points[1].x, triangle.points[1].y, triangle.points[2].x,
         triangle.points[2].y, color);
 }
 
-void draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
+void dda_draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
     int delta_x = x1 - x0;
     int delta_y = y1 - y0;
 
