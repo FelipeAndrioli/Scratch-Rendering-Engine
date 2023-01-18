@@ -3,6 +3,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "../libs/dynamic_array/array.h"
+
+#include "./mesh.h"
 
 void load_obj_data(char* filepath);
 void process_line(char* line);

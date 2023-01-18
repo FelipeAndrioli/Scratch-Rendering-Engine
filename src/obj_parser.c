@@ -1,65 +1,81 @@
 #include "../include/obj_parser.h"
 
 void process_vertex(char* vertex) {
-    while (vertex) {
-        // convert and add to the array
-        printf("%f\n", atof(vertex));
-        vertex = strtok(NULL, " ");
-    }
+    char *end_str = strdup(vertex);
+    char *token = strtok_r(NULL, " ", &end_str);
+    // token is initialized this way to skip the first value on the string
+    // which is an "v"
+    vec3_t new_vertex;
+
+    token = strtok_r(end_str, " ", &end_str);
+    new_vertex.x = atof(token);
+    token = strtok_r(end_str, " ", &end_str);
+    new_vertex.y = atof(token);
+    token = strtok_r(end_str, " ", &end_str);
+    new_vertex.z = atof(token);
+
+    array_push(mesh.vertices, new_vertex);
 }
 
 void process_face(char *face) {
-    // process how many set of data splitted by " " is provided
-    while (face) {
-        // extract values, convert and add to the array
+    /*
+        vi -> vertex indice
+        ti -> texture indice
+        ni -> normal indice
 
-        char* helper = strtok(face, "/");
+        data structure
+        vi vi vi
+        ti ti ti
+        ni ni ni
+    */
 
-        // it'll always going to be a set a of three values splitted between /
-        int vertex_indice = 0;
-        int texture_indice = 0;
-        int normal_indice = 0;
+    char *end_str = strdup(face);
+    char *token = strtok_r(NULL, " ", &end_str);
+    // token is initialized this way to skip the first value on the string
+    // which is an "f"
+    face_t new_face;
+    int data[3][3];
+    int helper = 0;
 
-        vertex_indice = atoi(helper);
-        helper = strtok(NULL, "/");
+    // 1/2/3/ 4/5/6 7/8/9
+    while ((token = strtok_r(end_str, " ", &end_str))) {
+        // 1/2/3
+        char *sub_end_str = strdup(token);
 
-        texture_indice = atoi(helper);
-        helper = strtok(NULL, "/");
-
-        normal_indice = atoi(helper);
-        helper = strtok(NULL, "/");
-
-        face = strtok(NULL, " ");
+        for (int i = 0; i < 3; i++) {
+            char *sub_token = strtok_r(sub_end_str, "/", &sub_end_str);
+            data[i][helper] = atoi(sub_token); 
+        }
+        helper++;
     }
+
+    new_face.a = data[0][0];
+    new_face.b = data[0][1];
+    new_face.c = data[0][2];
+
+    array_push(mesh.faces, new_face);
 }
 
 void process_line(char* line) {
-    int index = 0;
+    char *end_str = strdup(line);
+    char *token = strtok_r(end_str, " ", &end_str);
 
-    if (!strcmp(line, "v")) {
-        line = strtok(NULL, " ");
+    /*
+        strdup - allocate memory on heap and copy the value on memory from the
+        orinal string to the new one, therefore it won't mess the original
+        string
+    */
+
+    if (!strcmp(token, "v")) {
         process_vertex(line);
     }
 
-    if (!strcmp(line, "f")) {
-        line = strtok(NULL, " ");
+    if (!strcmp(token, "f")) {
         process_face(line);
     }
 }
 
 void load_obj_data(char* path) {
-
-    /*
-
-       fopen needs to be tested
-
-       the function fgets allows to read string from a stream. It reads up to
-       n-1 characters from the input stream referenced by fp. It copies the
-       read string into the buffer buf,m appending a null character to 
-       terminate the string.
-
-    */
-
     FILE *fp;
     char buff[255];
 
@@ -68,10 +84,7 @@ void load_obj_data(char* path) {
         return;
     }
 
-    fscanf(fp, "%s", buff);
     while (fgets(buff, 255, fp) != NULL) {
-        char* helper;
-        helper = strtok(buff, " ");
         process_line(buff);
     }
 
