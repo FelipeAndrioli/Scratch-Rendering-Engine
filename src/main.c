@@ -41,7 +41,8 @@ void setup(void) {
     }
 
     // load specifically cube values
-    load_cube_mesh_data();
+    //load_cube_mesh_data();
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
 }
 
 void process_input(void) {
