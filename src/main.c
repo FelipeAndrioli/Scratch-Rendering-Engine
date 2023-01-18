@@ -42,7 +42,8 @@ void setup(void) {
 
     // load specifically cube values
     //load_cube_mesh_data();
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
 }
 
 void process_input(void) {
@@ -91,8 +92,8 @@ void update(void) {
     triangles_to_render = NULL;
 
     mesh.rotation.x += 0.01f;
-    mesh.rotation.y += 0.01f;
-    mesh.rotation.z += 0.01f;
+    mesh.rotation.y += 0.00f;
+    mesh.rotation.z += 0.00f;
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
@@ -134,6 +135,9 @@ void render(void) {
     int n_triangles = array_length(triangles_to_render);
     for (int i = 0; i < n_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
+        draw_rect(triangle.points[0].x, triangle.points[0].y, 5, 5, 0xFFFFFF00);
+        draw_rect(triangle.points[1].x, triangle.points[1].y, 5, 5, 0xFFFFFF00);
+        draw_rect(triangle.points[2].x, triangle.points[2].y, 5, 5, 0xFFFFFF00);
         draw_triangle(triangle, 0xFFFFFF00);
     }
 
