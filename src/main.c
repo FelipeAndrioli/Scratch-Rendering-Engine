@@ -12,7 +12,7 @@
 
 triangle_t *triangles_to_render = NULL;
 
-vec3_t camera_position = {0, 0, -5};
+vec3_t camera_position = {0, 0, 0};
 
 // used by the perspective_projection
 float fov_factor = 640;
@@ -42,8 +42,8 @@ void setup(void) {
 
     // load specifically cube values
     //load_cube_mesh_data();
-    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
 }
 
 void process_input(void) {
@@ -108,13 +108,36 @@ void update(void) {
 
         triangle_t projected_triangle;
 
-        // loop through all three vertices of the triangle stored in the face
-        // vertices
+        vec3_t transformed_vertices[3];
+
+        // Transformations 
         for (int j = 0; j < 3; j++) {
             vec3_t transformed_vertex = face_vertices[j];
             transformed_vertex = vec3_rotate(transformed_vertex, mesh.rotation);
-            transformed_vertex.z -= camera_position.z;
-            vec2_t projected_point = perspective_projection(transformed_vertex);
+            transformed_vertex.z += 5;
+
+            transformed_vertices[j] = transformed_vertex;
+        }
+
+        // Backface Culling
+        vec3_t vec_a = transformed_vertices[0];
+        vec3_t vec_b = transformed_vertices[1];
+        vec3_t vec_c = transformed_vertices[2];
+
+        vec3_t vector_ab = vec3_sub(vec_b, vec_a);
+        vec3_t vector_ac = vec3_sub(vec_c, vec_a);
+
+        vec3_t normal = vec3_cross(vector_ab, vector_ac);
+        vec3_t camera_ray = vec3_sub(camera_position, vec_a);
+        float face_alignment = vec3_dot(normal, camera_ray);
+
+        if (face_alignment < 0) {
+            continue;
+        }
+
+        // Projection
+        for (int j = 0; j < 3; j++) {
+            vec2_t projected_point = perspective_projection(transformed_vertices[j]);
 
             // scale and translate the projected points to the middle of the
             // screen
