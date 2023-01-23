@@ -91,9 +91,9 @@ void update(void) {
     // Initialize the array
     triangles_to_render = NULL;
 
-    mesh.rotation.x += 0.01f;
-    mesh.rotation.y += 0.00f;
-    mesh.rotation.z += 0.00f;
+    mesh.rotation.x += 0.00f;
+    mesh.rotation.y += 0.03f;
+    mesh.rotation.z += 0.03f;
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
@@ -125,9 +125,14 @@ void update(void) {
         vec3_t vec_c = transformed_vertices[2];
 
         vec3_t vector_ab = vec3_sub(vec_b, vec_a);
+        vec3_normalize(&vector_ab);
+
         vec3_t vector_ac = vec3_sub(vec_c, vec_a);
+        vec3_normalize(&vector_ac);
 
         vec3_t normal = vec3_cross(vector_ab, vector_ac);
+        vec3_normalize(&normal);
+
         vec3_t camera_ray = vec3_sub(camera_position, vec_a);
         float face_alignment = vec3_dot(normal, camera_ray);
 
