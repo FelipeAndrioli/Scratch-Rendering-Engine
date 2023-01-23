@@ -4,8 +4,48 @@ float vec2_length(vec2_t v) {
     return sqrt(v.x * v.x + v.y * v.y);
 }
 
+vec2_t vec2_add(vec2_t a, vec2_t b) {
+    vec2_t result = {a.x + b.x, a.y + b.y};
+    return result;
+}
+
+vec2_t vec2_sub(vec2_t a, vec2_t b) {
+    vec2_t result = {a.x - b.x, a.y - b.y};
+    return result;
+}
+
+vec2_t vec2_mult(vec2_t v, float s) {
+    vec2_t result = {v.x * s, v.y * s};
+    return result;
+}
+
+vec2_t vec2_div(vec2_t v, float s) {
+    vec2_t result = {v.x / s, v.y / s};
+    return result;
+}
+
 float vec3_length(vec3_t v) {
     return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+vec3_t vec3_add(vec3_t a, vec3_t b) {
+    vec3_t result = {a.x + b.x, a.y + b.y, a.z + b.z};
+    return result;
+}
+
+vec3_t vec3_sub(vec3_t a, vec3_t b) {
+    vec3_t result = {a.x - b.x, a.y - b.y, a.z - b.z};
+    return result;
+}
+
+vec3_t vec3_mult(vec3_t v, float s) {
+    vec3_t result = {v.x * s, v.y * s, v.z * s};
+    return result;
+}
+
+vec3_t vec3_div(vec3_t v, float s) {
+    vec3_t result = {v.x / s, v.y / s, v.z / s};
+    return result;
 }
 
 vec3_t vec3_rotate_x(vec3_t v, float angle) {
