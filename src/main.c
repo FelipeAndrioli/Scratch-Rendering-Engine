@@ -160,14 +160,15 @@ void render(void) {
     //draw_grid_lines(100, 100);
     draw_grid_dots(10, 10);
 
+    /*
     int n_triangles = array_length(triangles_to_render);
     for (int i = 0; i < n_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw_rect(triangle.points[0].x, triangle.points[0].y, 5, 5, 0xFFFFFF00);
-        draw_rect(triangle.points[1].x, triangle.points[1].y, 5, 5, 0xFFFFFF00);
-        draw_rect(triangle.points[2].x, triangle.points[2].y, 5, 5, 0xFFFFFF00);
         draw_triangle(triangle, 0xFFFFFF00);
     }
+    */
+
+    draw_filled_triangle(300, 100, 50, 400, 500, 700, 0xFF00FF00);
 
     // Free the array of triangles to render every frame
     array_free(triangles_to_render);
