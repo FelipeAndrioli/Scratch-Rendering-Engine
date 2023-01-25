@@ -9,6 +9,8 @@ uint32_t *color_buffer = NULL;
 int window_width = 800;
 int window_height = 600;
 
+render_options rendering_options;
+
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL\n");
@@ -40,6 +42,11 @@ bool initialize_window(void) {
     }
 
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+
+    rendering_options.BACKFACE_CULLING = 1;
+    rendering_options.TRIANGLE_FILL = 1;
+    rendering_options.VERTEX = 0;
+    rendering_options.WIREFRAME = 0;
 
     return true;
 }
@@ -212,6 +219,20 @@ void draw_filled_triangle(triangle_t triangle, uint32_t color) {
             triangle.points[1].x, triangle.points[1].y, mx, my, color);
         fill_flat_top_triangle(triangle.points[1].x, triangle.points[1].y, mx, my, 
             triangle.points[2].x, triangle.points[2].y, color);
+    }
+}
+
+void draw(triangle_t triangle, uint32_t color) {
+    if (rendering_options.TRIANGLE_FILL) {
+        draw_filled_triangle(triangle, color); 
+    }
+    if (rendering_options.WIREFRAME) {
+        draw_triangle(triangle, 0xFF000000);
+    }
+    if (rendering_options.VERTEX) {
+        draw_rect(triangle.points[0].x, triangle.points[0].y, 5, 5, 0xFFFF0000);
+        draw_rect(triangle.points[1].x, triangle.points[1].y, 5, 5, 0xFFFF0000);
+        draw_rect(triangle.points[2].x, triangle.points[2].y, 5, 5, 0xFFFF0000);
     }
 }
 
