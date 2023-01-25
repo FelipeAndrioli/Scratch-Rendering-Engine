@@ -58,6 +58,14 @@ void process_input(void) {
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE) 
                 is_running = false;
+            if (event.key.keysym.sym == SDLK_1)
+                rendering_options.VERTEX = !rendering_options.VERTEX;
+            if (event.key.keysym.sym == SDLK_2)
+                rendering_options.WIREFRAME = !rendering_options.WIREFRAME;
+            if (event.key.keysym.sym == SDLK_3)
+                rendering_options.TRIANGLE_FILL= !rendering_options.TRIANGLE_FILL;
+            if (event.key.keysym.sym == SDLK_4)
+                rendering_options.BACKFACE_CULLING = !rendering_options.BACKFACE_CULLING;
             break;
     }
 }
@@ -91,9 +99,9 @@ void update(void) {
     // Initialize the array
     triangles_to_render = NULL;
 
-    mesh.rotation.x += 0.00f;
-    mesh.rotation.y += 0.03f;
-    mesh.rotation.z += 0.03f;
+    mesh.rotation.x += 0.01f;
+    mesh.rotation.y += 0.01f;
+    mesh.rotation.z += 0.01f;
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
@@ -160,17 +168,14 @@ void render(void) {
     //draw_grid_lines(100, 100);
     draw_grid_dots(10, 10);
 
-    /*
     int n_triangles = array_length(triangles_to_render);
     for (int i = 0; i < n_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw_triangle(triangle, 0xFFFFFF00);
+        //draw_filled_triangle(triangle, 0xFFFFFFFF);
+        //draw_triangle(triangle, 0xFF000000);
+        draw(triangle, 0xFFFFFFFF);
     }
-    */
 
-    draw_filled_triangle(300, 100, 50, 400, 500, 700, 0xFF00FF00);
-
-    // Free the array of triangles to render every frame
     array_free(triangles_to_render);
     
     render_color_buffer();
