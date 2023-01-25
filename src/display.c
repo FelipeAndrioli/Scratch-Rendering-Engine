@@ -134,6 +134,12 @@ void int_swap(int *a, int *b) {
     *b = temp;
 }
 
+void float_swap(float *a, float *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
     /*
         *Inverse Slope calculation
@@ -173,30 +179,40 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
     }
 }
 
-void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
-    // TODO: change this function to receive the triangle data structure instead
-    // of the lost values
-
+void draw_filled_triangle(triangle_t triangle, uint32_t color) {
     // Flat-top && flat-bottom triangle rendering technique
-    if (y0 > y1) {
-        int_swap(&y0, &y1);
-        int_swap(&x0, &x1);
+    if (triangle.points[0].y > triangle.points[1].y) {
+        float_swap(&triangle.points[0].y, &triangle.points[1].y);
+        float_swap(&triangle.points[0].x, &triangle.points[1].x);
     }
-    if (y1 > y2) {
-        int_swap(&y1, &y2);
-        int_swap(&x1, &x2);
+    if (triangle.points[1].y > triangle.points[2].y) {
+        float_swap(&triangle.points[1].y, &triangle.points[2].y);
+        float_swap(&triangle.points[1].x, &triangle.points[2].x);
     }
-    if (y0 > y1) {
-        int_swap(&y0, &y1);
-        int_swap(&x0, &x1);
+    if (triangle.points[0].y > triangle.points[1].y) {
+        float_swap(&triangle.points[0].y, &triangle.points[1].y);
+        float_swap(&triangle.points[0].x, &triangle.points[1].x);
     }
 
-    int mx = ((float)((x2 - x0) * (y1 - y0)) / (float)(y2 - y0)) + x0;
-    int my = y1;
+    if ((int)triangle.points[1].y == (int)triangle.points[2].y) {
+        fill_flat_bottom_triangle(triangle.points[0].x, triangle.points[0].y,
+            triangle.points[1].x, triangle.points[1].y, triangle.points[2].x,
+            triangle.points[2].y, color);
+    } else if ((int)triangle.points[0].y == (int)triangle.points[1].y) {
+        fill_flat_top_triangle(triangle.points[0].x, triangle.points[0].y,
+            triangle.points[1].x, triangle.points[1].y, triangle.points[2].x,
+            triangle.points[2].y, color);
+    } else {
+        int mx = ((float)((triangle.points[2].x - triangle.points[0].x) * (
+            triangle.points[1].y - triangle.points[0].y)) / (float)(
+            triangle.points[2].y - triangle.points[0].y)) + triangle.points[0].x;
+        int my = triangle.points[1].y;
 
-    fill_flat_bottom_triangle(x0, y0, x1, y1, mx, my, color);
-    fill_flat_top_triangle(x1, y1, mx, my, x2, y2, color);
+        fill_flat_bottom_triangle(triangle.points[0].x, triangle.points[0].y, 
+            triangle.points[1].x, triangle.points[1].y, mx, my, color);
+        fill_flat_top_triangle(triangle.points[1].x, triangle.points[1].y, mx, my, 
+            triangle.points[2].x, triangle.points[2].y, color);
+    }
 }
-
 
 
