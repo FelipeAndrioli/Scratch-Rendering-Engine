@@ -52,7 +52,7 @@ void render_color_buffer() {
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
 }
 
-void clear_color_buffer(uint32_t color) {
+void clear_color_buffer(color_t color) {
     for (int y = 0; y < window_height; y++) {
         for (int x = 0; x < window_width; x++) {
             draw_pixel(x, y, color);
@@ -86,7 +86,7 @@ void draw_grid_lines(int column, int row) {
     }
 }
 
-void draw_rect(int pos_x, int pos_y, int width, int height, uint32_t color) {
+void draw_rect(int pos_x, int pos_y, int width, int height, color_t color) {
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
             int current_x = pos_x + i;
@@ -96,7 +96,7 @@ void draw_rect(int pos_x, int pos_y, int width, int height, uint32_t color) {
     }
 }
 
-void draw_triangle(triangle_t triangle, uint32_t color) {
+void draw_triangle(triangle_t triangle, color_t color) {
     dda_draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x,
         triangle.points[1].y, color);
     dda_draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[2].x,
@@ -105,7 +105,7 @@ void draw_triangle(triangle_t triangle, uint32_t color) {
         triangle.points[2].y, color);
 }
 
-void dda_draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
+void dda_draw_line(int x0, int y0, int x1, int y1, color_t color) {
     int delta_x = x1 - x0;
     int delta_y = y1 - y0;
 
@@ -124,7 +124,7 @@ void dda_draw_line(int x0, int y0, int x1, int y1, uint32_t color) {
     }
 }
 
-void draw_pixel(int x, int y, uint32_t color) {
+void draw_pixel(int x, int y, color_t color) {
     if (x >= 0 && x < window_width && y >= 0 &&  y < window_height) {
         color_buffer[(window_width * y) + x] = color;
     }
@@ -142,7 +142,7 @@ void float_swap(float *a, float *b) {
     *b = temp;
 }
 
-void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
     /*
         *Inverse Slope calculation
         
@@ -167,7 +167,7 @@ void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, u
     }
 }
 
-void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
 
     float slope_left = (float)(x2 - x0) / (y2 - y0);
     float slope_right = (float)(x2 - x1) / (y2 - y1);
@@ -181,7 +181,7 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
     }
 }
 
-void draw_filled_triangle(triangle_t triangle, uint32_t color) {
+void draw_filled_triangle(triangle_t triangle, color_t color) {
     // Flat-top && flat-bottom triangle rendering technique
     if (triangle.points[0].y > triangle.points[1].y) {
         float_swap(&triangle.points[0].y, &triangle.points[1].y);
@@ -242,7 +242,7 @@ float culling(vec3_t *vertices, vec3_t camera_position) {
     return face_alignment;
 }
 
-void draw(triangle_t triangle, uint32_t color) {
+void draw(triangle_t triangle, color_t color) {
     if (rendering_options.RENDER_FILL_TRIANGLE) {
         draw_filled_triangle(triangle, color); 
     }

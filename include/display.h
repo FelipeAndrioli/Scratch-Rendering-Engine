@@ -16,6 +16,8 @@ typedef struct {
     bool CULLING_BACKFACE;
 } render_options;
 
+typedef uint32_t color_t;
+
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* color_buffer_texture;
@@ -29,20 +31,20 @@ extern render_options rendering_options;
 
 bool initialize_window(void);
 void render_color_buffer();
-void clear_color_buffer(uint32_t color);
+void clear_color_buffer(color_t color);
 void destroy_window(void);
 void draw_grid_dots(int column, int row);
 void draw_grid_lines(int column, int row);
-void draw_rect(int pos_x, int pos_y, int width, int height, uint32_t color);
-void draw_triangle(triangle_t triangle, uint32_t color);
-void dda_draw_line(int x0, int y0, int x1, int y1, uint32_t color);
-void draw_pixel(int x, int y, uint32_t color);
+void draw_rect(int pos_x, int pos_y, int width, int height, color_t color);
+void draw_triangle(triangle_t triangle, color_t color);
+void dda_draw_line(int x0, int y0, int x1, int y1, color_t color);
+void draw_pixel(int x, int y, color_t color);
 
 void swap(int *a, int *b);
-void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
-void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
-void draw_filled_triangle(triangle_t triangle, uint32_t color);
+void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color);
+void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color);
+void draw_filled_triangle(triangle_t triangle, color_t color);
 
 float culling(vec3_t *vertices, vec3_t camera_position);
-void draw(triangle_t triangle, uint32_t color);
+void draw(triangle_t triangle, color_t color);
 #endif
