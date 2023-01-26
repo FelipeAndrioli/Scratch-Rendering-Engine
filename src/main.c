@@ -132,10 +132,6 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-        if (culling(transformed_vertices, camera_position) < 0) {
-            continue;
-        }
-
         // Projection
         vec2_t projected_points[3];
 
@@ -159,7 +155,9 @@ void update(void) {
 
         // save the projected triangle in an array of triangles to render
         // this is going to turn very slow in the future, but'll be fixed soon
-        array_push(triangles_to_render, projected_triangle);
+        if (culling(transformed_vertices, camera_position) >= 0) {
+            array_push(triangles_to_render, projected_triangle);
+        }
     }
 }
 
