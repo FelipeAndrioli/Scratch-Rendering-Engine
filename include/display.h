@@ -10,10 +10,10 @@
 #define FRAME_TARGET_TIME (1000 / FPS)
 
 typedef struct {
-    int TRIANGLE_FILL;
-    int WIREFRAME;
-    int VERTEX;
-    int BACKFACE_CULLING;
+    int RENDER_FILL_TRIANGLE;
+    int RENDER_WIREFRAME;
+    int RENDER_VERTEX;
+    int CULLING_BACKFACE;
 } render_options;
 
 extern SDL_Window* window;
@@ -44,5 +44,4 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint
 void draw_filled_triangle(triangle_t triangle, uint32_t color);
 
 void draw(triangle_t triangle, uint32_t color);
-
 #endif

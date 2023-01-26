@@ -23,6 +23,12 @@ bool is_running = false;
 int previous_frame_time = 0;
 
 void setup(void) {
+
+    rendering_options.CULLING_BACKFACE = 1;
+    rendering_options.RENDER_FILL_TRIANGLE = 1;
+    rendering_options.RENDER_VERTEX = 0;
+    rendering_options.RENDER_WIREFRAME = 0;
+
     // Allocate the memory in bytes to holde the entire color buffer
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
 
@@ -59,13 +65,13 @@ void process_input(void) {
             if (event.key.keysym.sym == SDLK_ESCAPE) 
                 is_running = false;
             if (event.key.keysym.sym == SDLK_1)
-                rendering_options.VERTEX = !rendering_options.VERTEX;
+                rendering_options.RENDER_VERTEX = !rendering_options.RENDER_VERTEX;
             if (event.key.keysym.sym == SDLK_2)
-                rendering_options.WIREFRAME = !rendering_options.WIREFRAME;
+                rendering_options.RENDER_WIREFRAME = !rendering_options.RENDER_WIREFRAME;
             if (event.key.keysym.sym == SDLK_3)
-                rendering_options.TRIANGLE_FILL= !rendering_options.TRIANGLE_FILL;
+                rendering_options.RENDER_FILL_TRIANGLE= !rendering_options.RENDER_FILL_TRIANGLE;
             if (event.key.keysym.sym == SDLK_4)
-                rendering_options.BACKFACE_CULLING = !rendering_options.BACKFACE_CULLING;
+                rendering_options.CULLING_BACKFACE = !rendering_options.CULLING_BACKFACE;
             break;
     }
 }
@@ -101,7 +107,7 @@ void update(void) {
 
     mesh.rotation.x += 0.01f;
     mesh.rotation.y += 0.01f;
-    mesh.rotation.z += 0.01f;
+    mesh.rotation.z += 0.00f;
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
@@ -127,25 +133,28 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-        // Backface Culling
-        vec3_t vec_a = transformed_vertices[0];
-        vec3_t vec_b = transformed_vertices[1];
-        vec3_t vec_c = transformed_vertices[2];
+        if (rendering_options.CULLING_BACKFACE) {
+            // TODO: I really don't like the backface culling algorithm loose
+            // here, think about a way to create a function to it later
+            // Backface Culling
+            vec3_t vec_a = transformed_vertices[0];
+            vec3_t vec_b = transformed_vertices[1];
+            vec3_t vec_c = transformed_vertices[2];
 
-        vec3_t vector_ab = vec3_sub(vec_b, vec_a);
-        vec3_normalize(&vector_ab);
+            vec3_t vector_ab = vec3_sub(vec_b, vec_a);
+            vec3_normalize(&vector_ab);
 
-        vec3_t vector_ac = vec3_sub(vec_c, vec_a);
-        vec3_normalize(&vector_ac);
+            vec3_t vector_ac = vec3_sub(vec_c, vec_a);
+            vec3_normalize(&vector_ac);
 
-        vec3_t normal = vec3_cross(vector_ab, vector_ac);
-        vec3_normalize(&normal);
+            vec3_t normal = vec3_cross(vector_ab, vector_ac);
+            vec3_normalize(&normal);
 
-        vec3_t camera_ray = vec3_sub(camera_position, vec_a);
-        float face_alignment = vec3_dot(normal, camera_ray);
+            vec3_t camera_ray = vec3_sub(camera_position, vec_a);
+            float face_alignment = vec3_dot(normal, camera_ray);
 
-        if (face_alignment < 0) {
-            continue;
+            if (face_alignment < 0)
+                continue;
         }
 
         // Projection
@@ -171,9 +180,7 @@ void render(void) {
     int n_triangles = array_length(triangles_to_render);
     for (int i = 0; i < n_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
-        //draw_filled_triangle(triangle, 0xFFFFFFFF);
-        //draw_triangle(triangle, 0xFF000000);
-        draw(triangle, 0xFFFFFFFF);
+        draw(triangle, 0xFFFF00FF);
     }
 
     array_free(triangles_to_render);
