@@ -47,8 +47,8 @@ void setup(void) {
     }
 
     // load specifically cube values
-    //load_cube_mesh_data();
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    load_cube_mesh_data();
+    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
 }
 
@@ -120,7 +120,6 @@ void update(void) {
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        triangle_t projected_triangle;
 
         vec3_t transformed_vertices[3];
 
@@ -138,15 +137,26 @@ void update(void) {
         }
 
         // Projection
+        vec2_t projected_points[3];
+
         for (int j = 0; j < 3; j++) {
-            vec2_t projected_point = perspective_projection(transformed_vertices[j]);
+            projected_points[j] = perspective_projection(transformed_vertices[j]);
 
             // scale and translate the projected points to the middle of the
             // screen
-            projected_point.x += (window_width / 2);
-            projected_point.y += (window_height / 2);
-            projected_triangle.points[j] = projected_point;
+            projected_points[j].x += (window_width / 2);
+            projected_points[j].y += (window_height / 2);
         }
+
+        triangle_t projected_triangle = {
+            {
+            {projected_points[0].x, projected_points[0].y},
+            {projected_points[1].x, projected_points[1].y},
+            {projected_points[2].x, projected_points[2].y}
+            },
+            mesh_face.color
+        };
+
         // save the projected triangle in an array of triangles to render
         // this is going to turn very slow in the future, but'll be fixed soon
         array_push(triangles_to_render, projected_triangle);
@@ -160,7 +170,7 @@ void render(void) {
     int n_triangles = array_length(triangles_to_render);
     for (int i = 0; i < n_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw(triangle, 0xFFFF00FF);
+        draw(triangle, triangles_to_render[i].color);
     }
 
     array_free(triangles_to_render);
