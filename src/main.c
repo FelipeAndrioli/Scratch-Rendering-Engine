@@ -107,7 +107,7 @@ void update(void) {
 
     mesh.rotation.x += 0.01f;
     mesh.rotation.y += 0.01f;
-    mesh.rotation.z += 0.00f;
+    mesh.rotation.z += 0.01f;
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
@@ -120,13 +120,12 @@ void update(void) {
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-
         vec3_t transformed_vertices[3];
 
         // Transformations 
         for (int j = 0; j < 3; j++) {
             vec3_t transformed_vertex = face_vertices[j];
-            transformed_vertex = vec3_rotate(transformed_vertex, mesh.rotation);
+            vec3_rotate(&transformed_vertex, &mesh.rotation);
             transformed_vertex.z += 5;
 
             transformed_vertices[j] = transformed_vertex;
@@ -146,9 +145,9 @@ void update(void) {
 
         triangle_t projected_triangle = {
             {
-            {projected_points[0].x, projected_points[0].y},
-            {projected_points[1].x, projected_points[1].y},
-            {projected_points[2].x, projected_points[2].y}
+                {projected_points[0].x, projected_points[0].y},
+                {projected_points[1].x, projected_points[1].y},
+                {projected_points[2].x, projected_points[2].y}
             },
             mesh_face.color
         };
