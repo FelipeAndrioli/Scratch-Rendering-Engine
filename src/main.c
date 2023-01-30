@@ -125,7 +125,7 @@ void update(void) {
         // Transformations 
         for (int j = 0; j < 3; j++) {
             vec3_t transformed_vertex = face_vertices[j];
-            vec3_rotate(&transformed_vertex, &mesh.rotation);
+            transformed_vertex = vec3_rotate(transformed_vertex, mesh.rotation);
             transformed_vertex.z += 5;
 
             transformed_vertices[j] = transformed_vertex;

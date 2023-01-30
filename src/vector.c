@@ -79,25 +79,45 @@ void vec3_normalize(vec3_t *v) {
     v->z /= mag;
 }
 
-void vec3_rotate_x(vec3_t *v, float angle) {
-    v->y = v->y * cos(angle) - v->z * sin(angle);
-    v->z = v->y * sin(angle) + v->z * cos(angle);
+vec3_t vec3_rotate_x(vec3_t v, float angle) {
+    vec3_t r = {
+        v.x,
+        v.y * cos(angle) - v.z * sin(angle),
+        v.y * sin(angle) + v.z * cos(angle)
+    };
+    return r;
 }
 
-void vec3_rotate_y(vec3_t *v, float angle) {
-    v->x = v->x * cos(angle) - v->z * sin(angle);
-    v->z = v->x * sin(angle) + v->z * cos(angle);
+vec3_t vec3_rotate_y(vec3_t v, float angle) {
+    vec3_t r = {
+        v.x * cos(angle) - v.z * sin(angle),
+        v.y,
+        v.x * sin(angle) + v.z * cos(angle)
+    };
+    return r;
 }
 
-void vec3_rotate_z(vec3_t *v, float angle) {
-    v->x = v->x * cos(angle) - v->y * sin(angle);
-    v->y = v->x * sin(angle) + v->y * cos(angle);
+vec3_t vec3_rotate_z(vec3_t v, float angle) {
+    vec3_t r = {
+        v.x * cos(angle) - v.y * sin(angle),
+        v.x * sin(angle) + v.y * cos(angle),
+        v.z
+    };
+    return r;
 }
 
-void vec3_rotate(vec3_t *v, vec3_t *rotation) {
-    vec3_rotate_x(v, rotation->x);
-    vec3_rotate_y(v, rotation->y);
-    vec3_rotate_z(v, rotation->z);
+vec3_t vec3_rotate(vec3_t v, vec3_t rotation) {
+    /*
+        we're not going to do the rotation via reference because when we 
+        calculate the rotated z value we're using the y value, not the original
+        but the y rotated one, so this is messing with the form of the object
+    */
+    vec3_t r = v;
+    r = vec3_rotate_x(r, rotation.x);
+    r = vec3_rotate_y(r, rotation.y);
+    r = vec3_rotate_z(r, rotation.z);
+
+    return r;
 }
 
 void vec3_translate(vec3_t *v, vec3_t *amount) {
