@@ -1,6 +1,12 @@
 #include "../include/mesh.h"
 
-mesh_t mesh = {NULL, NULL, {0, 0, 0}};
+mesh_t mesh = {
+    NULL, 
+    NULL, 
+    {0, 0, 0},          // rotation
+    {1.0, 1.0, 1.0},    // scale
+    {0, 0, 0}           // translation
+};
 
 vec3_t cube_vertices[N_CUBE_VERTICES] = {
     {-1, -1, -1},
