@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "../include/triangle.h"
+#include "../libs/dynamic_array/array.h"
 
 #define FPS 30
 #define FRAME_TARGET_TIME (1000 / FPS)
@@ -47,4 +48,6 @@ void draw_filled_triangle(triangle_t triangle, color_t color);
 
 float culling(vec3_t *vertices, vec3_t camera_position);
 void draw(triangle_t triangle, color_t color);
+
+void sort_faces_depth(triangle_t *triangles_to_render);
 #endif

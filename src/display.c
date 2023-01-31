@@ -256,4 +256,19 @@ void draw(triangle_t triangle, color_t color) {
     }
 }
 
+void sort_faces_depth(triangle_t *triangles_to_render) {
+    // bubble sort as a temporary solution to sort the faces while we didn't
+    // learn z-buffer
+    int n_triangles = array_length(triangles_to_render);
+    for (int i = 0; i < n_triangles; i++) {
+        for (int j = i; j < n_triangles; j++) {
+            if (triangles_to_render[i].depth_avg < triangles_to_render[j].depth_avg) {
+                triangle_t temp = triangles_to_render[i];
+                triangles_to_render[i] = triangles_to_render[j];
+                triangles_to_render[j] = temp;
+            }
+        }
+    }
+}
+
 
