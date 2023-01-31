@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include "../include/triangle.h"
+#include "../include/matrix.h"
 #include "../libs/dynamic_array/array.h"
 
 #define FPS 30
@@ -46,7 +47,7 @@ void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, c
 void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color);
 void draw_filled_triangle(triangle_t triangle, color_t color);
 
-float culling(vec3_t *vertices, vec3_t camera_position);
+float culling(vec4_t *vertices, vec3_t camera_position);
 void draw(triangle_t triangle, color_t color);
 
 void sort_faces_depth(triangle_t *triangles_to_render);

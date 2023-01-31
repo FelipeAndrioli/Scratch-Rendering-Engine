@@ -217,15 +217,15 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     }
 }
 
-float culling(vec3_t *vertices, vec3_t camera_position) {
+float culling(vec4_t *vertices, vec3_t camera_position) {
     if (!rendering_options.CULLING_BACKFACE) {
         return 0;
     }
 
     // Backface Culling
-    vec3_t vec_a = vertices[0];
-    vec3_t vec_b = vertices[1];
-    vec3_t vec_c = vertices[2];
+    vec3_t vec_a = vec3_from_vec4(vertices[0]);
+    vec3_t vec_b = vec3_from_vec4(vertices[1]);
+    vec3_t vec_c = vec3_from_vec4(vertices[2]);
 
     vec3_t vector_ab = vec3_sub(&vec_b, &vec_a);
     vec3_normalize(&vector_ab);
