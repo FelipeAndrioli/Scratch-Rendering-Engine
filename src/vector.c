@@ -137,3 +137,15 @@ void vec3_scale_scalar(vec3_t *v, float amount) {
     v->y *= amount;
     v->z *= amount;
 }
+
+vec4_t vec4_from_vec3(vec3_t v) {
+    vec4_t r = {v.x, v.y, v.z, 1.0};
+
+    return r;
+}
+
+vec3_t vec3_from_vec4(vec4_t v) {
+    vec3_t r = {v.x, v.y, v.z};
+
+    return r;
+}

@@ -14,6 +14,13 @@ typedef struct {
     float z;
 } vec3_t;
 
+typedef struct {
+    float x;
+    float y;
+    float z;
+    float w;
+} vec4_t;
+
 float vec2_length(vec2_t *v);
 vec2_t vec2_add(vec2_t *a, vec2_t *b);
 vec2_t vec2_sub(vec2_t *a, vec2_t *b);
@@ -39,5 +46,8 @@ vec3_t vec3_rotate(vec3_t v, vec3_t rotation);
 void vec3_translate(vec3_t *v, vec3_t *amount);
 void vec3_scale(vec3_t *v, vec3_t *amount);
 void vec3_scale_scalar(vec3_t *v, float amount);
+
+vec4_t vec4_from_vec3(vec3_t v);
+vec3_t vec3_from_vec4(vec4_t v);
 
 #endif
