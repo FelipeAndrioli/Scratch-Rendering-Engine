@@ -8,7 +8,7 @@
 #include "../include/matrix.h"
 #include "../libs/dynamic_array/array.h"
 
-#define FPS 30
+#define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
 
 typedef struct {

@@ -5,7 +5,7 @@ mesh_t mesh = {
     NULL, 
     {0, 0, 0},          // rotation
     {1.0, 1.0, 1.0},    // scale
-    {0, 0, 0}           // translation
+    {0.0, 0.0, 0.0}     // translation
 };
 
 vec3_t cube_vertices[N_CUBE_VERTICES] = {
