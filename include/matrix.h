@@ -1,6 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <math.h>
+
 #include "./vector.h"
 
 typedef struct {
@@ -10,6 +12,9 @@ typedef struct {
 mat4_t mat4_identity(void);
 mat4_t mat4_make_scale(vec3_t *scale);
 mat4_t mat4_make_translation(vec3_t *translation);
+mat4_t mat4_make_rotation_x(vec3_t *rotation);
+mat4_t mat4_make_rotation_y(vec3_t *rotation);
+mat4_t mat4_make_rotation_z(vec3_t *rotation);
 vec4_t mat4_mult_vec4(mat4_t m, vec4_t v);
 
 #endif

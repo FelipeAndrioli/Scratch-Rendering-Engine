@@ -29,6 +29,45 @@ mat4_t mat4_make_translation(vec3_t *translation) {
     return m;
 }
 
+mat4_t mat4_make_rotation_x(vec3_t *rotation) {
+    mat4_t m = mat4_identity();
+    float s = sin(rotation->x);
+    float c = cos(rotation->x);
+
+    m.m[1][1] = c;
+    m.m[1][2] = s;
+    m.m[2][1] = -s;
+    m.m[2][2] = c;
+
+    return m;
+}
+
+mat4_t mat4_make_rotation_y(vec3_t *rotation) {
+    mat4_t m = mat4_identity();
+    float s = sin(rotation->y);
+    float c = cos(rotation->y);
+
+    m.m[0][0] = c;
+    m.m[0][2] = -s;
+    m.m[2][0] = s;
+    m.m[2][2] = c;
+
+    return m;
+}
+
+mat4_t mat4_make_rotation_z(vec3_t *rotation) {
+    mat4_t m = mat4_identity();
+    float s = sin(rotation->z);
+    float c = cos(rotation->z);
+
+    m.m[0][0] = c;
+    m.m[0][1] = s;
+    m.m[1][0] = -s;
+    m.m[1][1] = c;
+
+    return m;
+}
+
 vec4_t mat4_mult_vec4(mat4_t m, vec4_t v) {
     vec4_t result;
     result.x = m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w;
