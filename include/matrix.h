@@ -16,5 +16,6 @@ mat4_t mat4_make_rotation_x(vec3_t *rotation);
 mat4_t mat4_make_rotation_y(vec3_t *rotation);
 mat4_t mat4_make_rotation_z(vec3_t *rotation);
 vec4_t mat4_mult_vec4(mat4_t m, vec4_t v);
+mat4_t mat4_mult_mat4(mat4_t *a, mat4_t *b);
 
 #endif
