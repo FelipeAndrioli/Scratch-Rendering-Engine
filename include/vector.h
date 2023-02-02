@@ -21,6 +21,9 @@ typedef struct {
     float w;
 } vec4_t;
 
+vec2_t orthographic_projection(vec3_t point, float fov_factor);
+vec2_t perspective_projection(vec3_t point, float fov_factor);
+
 float vec2_length(vec2_t *v);
 vec2_t vec2_add(vec2_t *a, vec2_t *b);
 vec2_t vec2_sub(vec2_t *a, vec2_t *b);

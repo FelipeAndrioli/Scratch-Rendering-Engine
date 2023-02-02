@@ -1,5 +1,25 @@
 #include "../include/vector.h"
 
+vec2_t orthographic_projection(vec3_t point, float fov_factor) {
+    /*
+        weak projection not considering anything else but the fov factor
+    */
+    vec2_t projected_point = {(fov_factor * point.x), (fov_factor * point.y)};
+
+    return projected_point;
+}
+
+vec2_t perspective_projection(vec3_t point, float fov_factor) {
+    /*
+        weak projection not considering anything else but the fov factor and 
+        the perspective divide
+    */
+    vec2_t projected_point = {(fov_factor * point.x ) / point.z, 
+        (fov_factor * point.y) / point.z};
+
+    return projected_point;
+}
+
 float vec2_length(vec2_t *v) {
     return sqrt(v->x * v->x + v->y * v->y);
 }
