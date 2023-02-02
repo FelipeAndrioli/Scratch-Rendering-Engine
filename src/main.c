@@ -15,13 +15,10 @@ triangle_t *triangles_to_render = NULL;
 
 vec3_t camera_position = {0, 0, 0};
 
-// used by the perspective_projection
-float fov_factor = 640;
-// used by the orthographic_projection
-//float fov_factor = 128;
-
 bool is_running = false;
 int previous_frame_time = 0;
+
+mat4_t proj_matrix;
 
 void setup(void) {
 
@@ -46,6 +43,13 @@ void setup(void) {
         fprintf(stderr, "Error creating the SDL Texture\n");
         is_running = false;
     }
+
+    // need to convert the angle to radians
+    float fov = M_PI / 3.0; 
+    float aspect = (float)window_height / (float)window_width;
+    float znear = 0.1;
+    float zfar = 100.0;
+    proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar); 
 
     // load specifically cube values
     load_cube_mesh_data();
@@ -77,19 +81,6 @@ void process_input(void) {
     }
 }
 
-vec2_t orthographic_projection(vec3_t point) {
-    vec2_t projected_point = {(fov_factor * point.x), (fov_factor * point.y)};
-
-    return projected_point;
-}
-
-vec2_t perspective_projection(vec3_t point) {
-    vec2_t projected_point = {(fov_factor * point.x ) / point.z, 
-        (fov_factor * point.y) / point.z};
-
-    return projected_point;
-}
-
 void update(void) {
 
     // lock the execution until the execution reaches the desired FPS
@@ -110,10 +101,10 @@ void update(void) {
     mesh.rotation.y += 0.01;
     mesh.rotation.z += 0.01;
 
-    mesh.scale.x += 0.002;
-    mesh.scale.y += 0.001;
+    //mesh.scale.x += 0.002;
+    //mesh.scale.y += 0.001;
 
-    mesh.translation.x += 0.01;
+    //mesh.translation.x += 0.01;
     mesh.translation.z = 5.0;
     
     mat4_t scale_matrix = mat4_make_scale(&mesh.scale);
@@ -153,15 +144,19 @@ void update(void) {
         }
 
         // Projection
-        vec2_t projected_points[3];
+        vec4_t projected_points[3];
 
         for (int j = 0; j < 3; j++) {
-            projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
+            //projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
+            projected_points[j] = mat4_mult_vec4_project(proj_matrix, transformed_vertices[j]);
 
-            // scale and translate the projected points to the middle of the
-            // screen
-            projected_points[j].x += (window_width / 2);
-            projected_points[j].y += (window_height / 2);
+            // scale the projected points into the view port
+            projected_points[j].x *= (window_width / 2.0);
+            projected_points[j].y *= (window_height / 2.0);
+            
+            // translate the projected points to the middle of the screen
+            projected_points[j].x += (window_width / 2.0);
+            projected_points[j].y += (window_height / 2.0);
         }
 
         // Calculate the average depth for each face after transformations
