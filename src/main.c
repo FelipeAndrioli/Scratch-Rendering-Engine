@@ -138,7 +138,7 @@ void update(void) {
             world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
             world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
 
-            transformed_vertex = mat4_mult_vec4(world_matrix, transformed_vertex);
+            transformed_vertex = mat4_mult_vec4(&world_matrix, &transformed_vertex);
 
             transformed_vertices[j] = transformed_vertex;
         }
@@ -148,7 +148,7 @@ void update(void) {
 
         for (int j = 0; j < 3; j++) {
             //projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
-            projected_points[j] = mat4_mult_vec4_project(proj_matrix, transformed_vertices[j]);
+            projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &transformed_vertices[j]);
 
             // scale the projected points into the view port
             projected_points[j].x *= (window_width / 2.0);
