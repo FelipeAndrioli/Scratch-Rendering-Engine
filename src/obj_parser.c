@@ -17,6 +17,22 @@ void process_vertex(char* vertex) {
     array_push(mesh.vertices, new_vertex);
 }
 
+void process_normals(char* line) {
+    char* end_str = strdup(line);
+    char* token = strtok_r(NULL, " ", &end_str);
+
+    vec3_t new_normal;
+
+    token = strtok_r(end_str, " ", &end_str);
+    new_normal.x = atof(token);
+    token = strtok_r(end_str, " ", &end_str);
+    new_normal.y = atof(token);
+    token = strtok_r(end_str, " ", &end_str);
+    new_normal.z = atof(token);
+
+    array_push(mesh.normals, new_normal);
+}
+
 void process_face(char *face) {
     /*
         vi -> vertex indice
@@ -53,6 +69,10 @@ void process_face(char *face) {
     new_face.b = data[0][1];
     new_face.c = data[0][2];
 
+    new_face.na = data[2][0];
+    new_face.nb = data[2][1];
+    new_face.nc = data[2][2];
+
     array_push(mesh.faces, new_face);
 }
 
@@ -72,6 +92,10 @@ void process_line(char* line) {
 
     if (!strcmp(token, "f")) {
         process_face(line);
+    }
+
+    if (!strcmp(token, "n")) {
+        process_normals(line);
     }
 }
 

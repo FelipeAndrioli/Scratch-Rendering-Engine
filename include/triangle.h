@@ -11,6 +11,9 @@ typedef struct {
     int a;
     int b;
     int c;
+    int na;
+    int nb;
+    int nc;
     color_t color;
 } face_t;
 

@@ -13,5 +13,7 @@ void load_obj_data(char* filepath);
 void process_line(char* line);
 void process_char(char* vertex);
 void process_face(char* line);
+void process_vertex(char* vertex);
+void process_normals(char* line);
 
 #endif

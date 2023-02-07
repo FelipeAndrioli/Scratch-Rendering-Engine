@@ -3,6 +3,7 @@
 mesh_t mesh = {
     NULL, 
     NULL, 
+    NULL,
     {0, 0, 0},          // rotation
     {1.0, 1.0, 1.0},    // scale
     {0.0, 0.0, 0.0}     // translation
