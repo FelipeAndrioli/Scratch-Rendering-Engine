@@ -10,6 +10,7 @@
 #include "../include/vector.h"
 #include "../include/matrix.h"
 #include "../include/mesh.h"
+#include "../include/light.h"
 
 triangle_t *triangles_to_render = NULL;
 
@@ -20,17 +21,6 @@ bool is_running = false;
 int previous_frame_time = 0;
 
 mat4_t proj_matrix;
-
-uint32_t light_apply_intensity(uint32_t original_color, float percentage_factor) {
-    uint32_t a = (original_color & 0xFF000000);
-    uint32_t r = (original_color & 0x00FF0000) * percentage_factor;
-    uint32_t g = (original_color & 0x0000FF00) * percentage_factor;
-    uint32_t b = (original_color & 0x000000FF) * percentage_factor;
-
-    uint32_t new_color = a | (r & 0x00FF0000) | (g & 0x0000FF00) | (b & 0x000000FF);
-
-    return new_color;
-}
 
 void setup(void) {
 
@@ -63,7 +53,8 @@ void setup(void) {
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar); 
 
-    vec3_normalize(&light_direction);
+    //vec3_normalize(&light_direction);
+    vec3_normalize(&global_light.direction);
 
     // load specifically cube values
     //load_cube_mesh_data();
@@ -190,8 +181,8 @@ void update(void) {
         vec3_t face_normal = vec3_cross(&ab, &ac);
         vec3_normalize(&face_normal);
 
-        float light_intensity = vec3_dot(&light_direction, &face_normal);
-        mesh.faces->color = light_apply_intensity(0xFFFFFFFF, light_intensity > 0 ? light_intensity : 0);
+        float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
+        uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
         // End lighting
 
         triangle_t projected_triangle = {
@@ -200,7 +191,7 @@ void update(void) {
                 {projected_points[1].x, projected_points[1].y},
                 {projected_points[2].x, projected_points[2].y}
             },
-            mesh.faces->color,
+            triangle_color,
             avg_depth
         };
 
@@ -236,6 +227,7 @@ void free_resources(void) {
     free(color_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
+    array_free(mesh.normals);
 }
 
 int main(int argc, char *argv[]) {
