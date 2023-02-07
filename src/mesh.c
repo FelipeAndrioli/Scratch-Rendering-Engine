@@ -48,5 +48,5 @@ void load_cube_mesh_data(void) {
 }
 
 void load_model_mesh_data(char* filepath) {
-    load_obj_data(filepath); 
+    load_obj_data(filepath);
 }

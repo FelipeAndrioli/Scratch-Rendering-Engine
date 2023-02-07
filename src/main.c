@@ -172,7 +172,6 @@ void update(void) {
         float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z
             + transformed_vertices[2].z) / 3;
 
-        // Lighting
         vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
         vec3_t b = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
         vec3_t c = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
@@ -184,7 +183,8 @@ void update(void) {
 
         vec3_t face_normal = vec3_cross(&ab, &ac);
         vec3_normalize(&face_normal);
-
+    
+        // Lighting
         float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
         uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
         // End lighting
@@ -201,7 +201,7 @@ void update(void) {
 
         // save the projected triangle in an array of triangles to render
         // this is going to turn very slow in the future, but'll be fixed soon
-        if (culling(transformed_vertices, camera_position) >= 0) {
+        if (culling(&face_normal, transformed_vertices, camera_position) >= 0) {
             array_push(triangles_to_render, projected_triangle);
         }
     }
