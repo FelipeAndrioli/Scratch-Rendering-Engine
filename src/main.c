@@ -14,11 +14,23 @@
 triangle_t *triangles_to_render = NULL;
 
 vec3_t camera_position = {0, 0, 0};
+vec3_t light_direction = {1.0, -1.0, -1.0};
 
 bool is_running = false;
 int previous_frame_time = 0;
 
 mat4_t proj_matrix;
+
+uint32_t light_apply_intensity(uint32_t original_color, float percentage_factor) {
+    uint32_t a = (original_color & 0xFF000000);
+    uint32_t r = (original_color & 0x00FF0000) * percentage_factor;
+    uint32_t g = (original_color & 0x0000FF00) * percentage_factor;
+    uint32_t b = (original_color & 0x000000FF) * percentage_factor;
+
+    uint32_t new_color = a | (r & 0x00FF0000) | (g & 0x0000FF00) | (b & 0x000000FF);
+
+    return new_color;
+}
 
 void setup(void) {
 
@@ -51,10 +63,12 @@ void setup(void) {
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar); 
 
+    vec3_normalize(&light_direction);
+
     // load specifically cube values
-    load_cube_mesh_data();
+    //load_cube_mesh_data();
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
 }
 
 void process_input(void) {
@@ -163,13 +177,30 @@ void update(void) {
         float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z
             + transformed_vertices[2].z) / 3;
 
+        // Lighting
+        vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
+        vec3_t b = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
+        vec3_t c = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
+        vec3_t ab = vec3_sub(&a, &b);
+        vec3_normalize(&ab);
+
+        vec3_t ac = vec3_sub(&a, &c);
+        vec3_normalize(&ac);
+
+        vec3_t face_normal = vec3_cross(&ab, &ac);
+        vec3_normalize(&face_normal);
+
+        float light_intensity = vec3_dot(&light_direction, &face_normal);
+        mesh.faces->color = light_apply_intensity(0xFFFFFFFF, light_intensity > 0 ? light_intensity : 0);
+        // End lighting
+
         triangle_t projected_triangle = {
             {
                 {projected_points[0].x, projected_points[0].y},
                 {projected_points[1].x, projected_points[1].y},
                 {projected_points[2].x, projected_points[2].y}
             },
-            mesh_face.color,
+            mesh.faces->color,
             avg_depth
         };
 
