@@ -11,6 +11,8 @@
 #include "../include/matrix.h"
 #include "../include/mesh.h"
 #include "../include/light.h"
+#include "../include/triangle.h"
+#include "../include/texture.h"
 
 triangle_t *triangles_to_render = NULL;
 
@@ -28,6 +30,7 @@ void setup(void) {
     rendering_options.RENDER_FILL_TRIANGLE = 1;
     rendering_options.RENDER_VERTEX = 0;
     rendering_options.RENDER_WIREFRAME = 0;
+    rendering_options.RENDER_TEXTURED = 0;
 
     // Allocate the memory in bytes to holde the entire color buffer
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
@@ -56,10 +59,12 @@ void setup(void) {
     //vec3_normalize(&light_direction);
     vec3_normalize(&global_light.direction);
 
+    mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
+
     // load specifically cube values
-    //load_cube_mesh_data();
+    load_cube_mesh_data();
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
 }
 
 void process_input(void) {
@@ -82,6 +87,8 @@ void process_input(void) {
                 rendering_options.RENDER_FILL_TRIANGLE= !rendering_options.RENDER_FILL_TRIANGLE;
             if (event.key.keysym.sym == SDLK_4)
                 rendering_options.CULLING_BACKFACE = !rendering_options.CULLING_BACKFACE;
+            if (event.key.keysym.sym == SDLK_5)
+                rendering_options.RENDER_TEXTURED = !rendering_options.RENDER_TEXTURED;
             break;
     }
 }
@@ -103,8 +110,8 @@ void update(void) {
     triangles_to_render = NULL;
 
     mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    //mesh.rotation.y += 0.01;
+    //mesh.rotation.z += 0.01;
 
     //mesh.scale.x += 0.002;
     //mesh.scale.y += 0.001;
@@ -161,7 +168,7 @@ void update(void) {
         
             // Invert y values, our y on z buffer is pointing down but the model
             // y is pointing up, so the object is bein rendered upside down
-            projected_points[j].y *= -1;
+            //projected_points[j].y *= -1;
 
             // translate the projected points to the middle of the screen
             projected_points[j].x += (window_width / 2.0);
@@ -195,6 +202,11 @@ void update(void) {
                 {projected_points[1].x, projected_points[1].y},
                 {projected_points[2].x, projected_points[2].y}
             },
+            {
+                {mesh_face.a_uv.u, mesh_face.a_uv.v},
+                {mesh_face.b_uv.u, mesh_face.b_uv.v},
+                {mesh_face.c_uv.u, mesh_face.c_uv.v}
+            },
             triangle_color,
             avg_depth
         };
@@ -217,7 +229,7 @@ void render(void) {
     int n_triangles = array_length(triangles_to_render);
     for (int i = 0; i < n_triangles; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw(triangle, triangles_to_render[i].color);
+        draw(triangle, triangles_to_render[i].color, mesh_texture);
     }
 
     array_free(triangles_to_render);

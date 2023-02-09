@@ -69,9 +69,11 @@ void process_face(char *face) {
     new_face.b = data[0][1];
     new_face.c = data[0][2];
 
+    /*
     new_face.na = data[2][0];
     new_face.nb = data[2][1];
     new_face.nc = data[2][2];
+    */
 
     array_push(mesh.faces, new_face);
 }

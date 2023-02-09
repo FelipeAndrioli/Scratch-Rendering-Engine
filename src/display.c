@@ -130,18 +130,6 @@ void draw_pixel(int x, int y, color_t color) {
     }
 }
 
-void int_swap(int *a, int *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void float_swap(float *a, float *b) {
-    int temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
     /*
         *Inverse Slope calculation
@@ -217,6 +205,36 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     }
 }
 
+void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
+    // Flat-top && flat-bottom triangle rendering technique
+    if (triangle.points[0].y > triangle.points[1].y) {
+        // TODO check why we're swapping the triangle points as floats
+        float_swap(&triangle.points[0].y, &triangle.points[1].y);
+        float_swap(&triangle.points[0].x, &triangle.points[1].x);
+    
+        float_swap(&triangle.texcoords[0].u, &triangle.texcoords[1].u);
+        float_swap(&triangle.texcoords[0].v, &triangle.texcoords[1].v);
+    }
+    if (triangle.points[1].y > triangle.points[2].y) {
+        float_swap(&triangle.points[1].y, &triangle.points[2].y);
+        float_swap(&triangle.points[1].x, &triangle.points[2].x);
+        
+        float_swap(&triangle.texcoords[1].u, &triangle.texcoords[2].u);
+        float_swap(&triangle.texcoords[1].v, &triangle.texcoords[2].v);
+    }
+    if (triangle.points[0].y > triangle.points[1].y) {
+        float_swap(&triangle.points[0].y, &triangle.points[1].y);
+        float_swap(&triangle.points[0].x, &triangle.points[1].x);
+        
+        float_swap(&triangle.texcoords[0].u, &triangle.texcoords[1].u);
+        float_swap(&triangle.texcoords[0].v, &triangle.texcoords[1].v);
+    }
+
+
+    // inverse because we'll have the delta x / delta y
+
+}
+
 float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
     if (!rendering_options.CULLING_BACKFACE) {
         return 0;
@@ -230,7 +248,7 @@ float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
     return face_alignment;
 }
 
-void draw(triangle_t triangle, color_t color) {
+void draw(triangle_t triangle, color_t color, uint32_t *texture) {
     if (rendering_options.RENDER_FILL_TRIANGLE) {
         draw_filled_triangle(triangle, color); 
     }
@@ -241,6 +259,9 @@ void draw(triangle_t triangle, color_t color) {
         draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000);
         draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000);
         draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFFFF0000);
+    }
+    if (rendering_options.RENDER_TEXTURED) {
+        draw_textured_triangle(triangle, texture); 
     }
 }
 
