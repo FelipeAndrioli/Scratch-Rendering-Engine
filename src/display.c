@@ -230,9 +230,31 @@ void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
         float_swap(&triangle.texcoords[0].v, &triangle.texcoords[1].v);
     }
 
+    int x0 = triangle.points[0].x;
+    int y0 = triangle.points[0].y;
+    int x1 = triangle.points[1].x;
+    int y1 = triangle.points[1].y;
+    int x2 = triangle.points[2].x;
+    int y2 = triangle.points[2].y;
 
-    // inverse because we'll have the delta x / delta y
+    float inv_slope_left = 0;
+    float inv_slope_right = 0;
 
+    if (y1 - y0 != 0) inv_slope_left = (float)(x1 - x0) / abs(y1 - y0);
+    if (y2 - y0 != 0) inv_slope_right = (float)(x2 - x0) / abs(y2 - y0);
+
+    if (y1 - y0 != 0) {
+        for (int y = y0; y <= y1; y++) {
+            int x_start = x1 + (y - y1) * inv_slope_left;
+            int x_end = x0 + (y - y0) * inv_slope_right;
+
+            if (x_start > x_end) int_swap(&x_start, &x_end);
+
+            for (int x = x_start; x < x_end; x++) {
+                draw_pixel(x, y, 0xFFFFFFFF);
+            }
+        }
+    }
 }
 
 float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
