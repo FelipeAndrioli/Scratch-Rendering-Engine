@@ -255,6 +255,25 @@ void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
             }
         }
     }
+
+    inv_slope_left = 0;
+    inv_slope_right = 0;
+
+    if (y2 - y1 != 0) inv_slope_left = (float)(x2 - x1) / abs(y2 - y1);
+    if (y2 - y0 != 0) inv_slope_right = (float)(x2 - x0) / abs(y2 - y0);
+
+    if (y2 - y1 != 0) {
+        for (int y = y1; y <= y2; y++) {
+            int x_start = x1 + (y - y1) * inv_slope_left;
+            int x_end = x0 + (y - y0) * inv_slope_right;
+
+            if (x_start > x_end) int_swap(&x_start, &x_end);
+
+            for (int x = x_start; x < x_end; x++) {
+                draw_pixel(x, y, 0xFFFFFFFF);
+            }
+        }
+    }
 }
 
 float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
