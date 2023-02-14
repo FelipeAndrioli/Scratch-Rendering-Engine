@@ -48,7 +48,7 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture);
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color);
 void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color);
 void draw_filled_triangle(triangle_t triangle, color_t color);
-void draw_textured_triangle(triangle_t triangle, uint32_t *texture);
+void draw_textured_triangle(triangle_t *face, uint32_t *texture);
 
 float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position);
 void draw(triangle_t triangle, color_t color, uint32_t *texture);

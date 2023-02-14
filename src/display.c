@@ -229,38 +229,38 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     }
 }
 
-void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
+void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
     // TODO change this triangle type to a pointer
     // Flat-top && flat-bottom triangle rendering technique
-    if (triangle.points[0].y > triangle.points[1].y) {
+    if (face->points[0].y > face->points[1].y) {
         // TODO check why we're swapping the triangle points as floats
-        float_swap(&triangle.points[0].y, &triangle.points[1].y);
-        float_swap(&triangle.points[0].x, &triangle.points[1].x);
+        float_swap(&face->points[0].y, &face->points[1].y);
+        float_swap(&face->points[0].x, &face->points[1].x);
     
-        float_swap(&triangle.texcoords[0].u, &triangle.texcoords[1].u);
-        float_swap(&triangle.texcoords[0].v, &triangle.texcoords[1].v);
+        float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
+        float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
     }
-    if (triangle.points[1].y > triangle.points[2].y) {
-        float_swap(&triangle.points[1].y, &triangle.points[2].y);
-        float_swap(&triangle.points[1].x, &triangle.points[2].x);
+    if (face->points[1].y > face->points[2].y) {
+        float_swap(&face->points[1].y, &face->points[2].y);
+        float_swap(&face->points[1].x, &face->points[2].x);
         
-        float_swap(&triangle.texcoords[1].u, &triangle.texcoords[2].u);
-        float_swap(&triangle.texcoords[1].v, &triangle.texcoords[2].v);
+        float_swap(&face->texcoords[1].u, &face->texcoords[2].u);
+        float_swap(&face->texcoords[1].v, &face->texcoords[2].v);
     }
-    if (triangle.points[0].y > triangle.points[1].y) {
-        float_swap(&triangle.points[0].y, &triangle.points[1].y);
-        float_swap(&triangle.points[0].x, &triangle.points[1].x);
+    if (face->points[0].y > face->points[1].y) {
+        float_swap(&face->points[0].y, &face->points[1].y);
+        float_swap(&face->points[0].x, &face->points[1].x);
         
-        float_swap(&triangle.texcoords[0].u, &triangle.texcoords[1].u);
-        float_swap(&triangle.texcoords[0].v, &triangle.texcoords[1].v);
+        float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
+        float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
     }
 
-    int x0 = triangle.points[0].x;
-    int y0 = triangle.points[0].y;
-    int x1 = triangle.points[1].x;
-    int y1 = triangle.points[1].y;
-    int x2 = triangle.points[2].x;
-    int y2 = triangle.points[2].y;
+    int x0 = face->points[0].x;
+    int y0 = face->points[0].y;
+    int x1 = face->points[1].x;
+    int y1 = face->points[1].y;
+    int x2 = face->points[2].x;
+    int y2 = face->points[2].y;
 
     float inv_slope_left = 0;
     float inv_slope_right = 0;
@@ -276,7 +276,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, &triangle, texture);
+                draw_texel(x, y, face, texture);
             }
         }
     }
@@ -295,7 +295,7 @@ void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, &triangle, texture);
+                draw_texel(x, y, face, texture);
             }
         }
     }
@@ -324,7 +324,7 @@ void draw(triangle_t triangle, color_t color, uint32_t *texture) {
         draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFFFF0000);
     }
     if (rendering_options.RENDER_TEXTURED) {
-        draw_textured_triangle(triangle, texture); 
+        draw_textured_triangle(&triangle, texture); 
     }
     if (rendering_options.RENDER_WIREFRAME) {
         draw_triangle(triangle, 0xFFFFFFFF);
