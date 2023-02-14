@@ -130,6 +130,30 @@ void draw_pixel(int x, int y, color_t color) {
     }
 }
 
+void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
+    vec2_t p = {x, y};
+
+    vec3_t weights = calculate_barycentric_weight(&face->points[0], 
+        &face->points[1], &face->points[2], &p);
+
+    float alpha = weights.x;
+    float beta = weights.y;
+    float gamma = weights.z;
+
+    float interpolated_u = face->texcoords[0].u * alpha + face->texcoords[1].u 
+        * beta + face->texcoords[2].u * gamma;
+    float interpolated_v = face->texcoords[0].v * alpha + face->texcoords[1].v
+        * beta + face->texcoords[2].v * gamma;
+
+    // scale the uv coordinate (from 0 to 1) to the correct texture size (64 x 64 for example) 
+    int texture_x = abs((int)(interpolated_u * texture_width));
+    int texture_y = abs((int)(interpolated_v * texture_height));
+
+    if (texture_x > texture_width || texture_y > texture_height) return;
+
+    draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
+}
+
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {
     /*
         *Inverse Slope calculation
@@ -206,6 +230,7 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
 }
 
 void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
+    // TODO change this triangle type to a pointer
     // Flat-top && flat-bottom triangle rendering technique
     if (triangle.points[0].y > triangle.points[1].y) {
         // TODO check why we're swapping the triangle points as floats
@@ -250,8 +275,8 @@ void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
 
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
-            for (int x = x_start; x < x_end; x++) {
-                draw_pixel(x, y, 0xFFFFFFFF);
+            for (int x = x_start; x <= x_end; x++) {
+                draw_texel(x, y, &triangle, texture);
             }
         }
     }
@@ -269,8 +294,8 @@ void draw_textured_triangle(triangle_t triangle, uint32_t *texture) {
 
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
-            for (int x = x_start; x < x_end; x++) {
-                draw_pixel(x, y, 0xFFFFFFFF);
+            for (int x = x_start; x <= x_end; x++) {
+                draw_texel(x, y, &triangle, texture);
             }
         }
     }
@@ -293,9 +318,6 @@ void draw(triangle_t triangle, color_t color, uint32_t *texture) {
     if (rendering_options.RENDER_FILL_TRIANGLE) {
         draw_filled_triangle(triangle, color); 
     }
-    if (rendering_options.RENDER_WIREFRAME) {
-        draw_triangle(triangle, 0xFFFFFFFF);
-    }
     if (rendering_options.RENDER_VERTEX) {
         draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000);
         draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000);
@@ -303,6 +325,9 @@ void draw(triangle_t triangle, color_t color, uint32_t *texture) {
     }
     if (rendering_options.RENDER_TEXTURED) {
         draw_textured_triangle(triangle, texture); 
+    }
+    if (rendering_options.RENDER_WIREFRAME) {
+        draw_triangle(triangle, 0xFFFFFFFF);
     }
 }
 
