@@ -99,6 +99,45 @@ void vec3_normalize(vec3_t *v) {
     v->z /= mag;
 }
 
+vec3_t calculate_barycentric_weight(vec2_t *a, vec2_t *b, vec2_t *c, vec2_t *p) {
+    vec3_t weights = {0, 0, 0};
+    float alpha = 0;
+    float beta = 0;
+    float gamma = 0;
+    float parallelogram_area = 0;
+
+    vec2_t pc = vec2_sub(c, p);
+    vec2_t pb = vec2_sub(b, p);
+    vec2_t ac = vec2_sub(c, a);
+    vec2_t ab = vec2_sub(b, a);
+    vec2_t ap = vec2_sub(p, a);
+
+    /*
+    "2D cross product"
+
+    Since the cross product is defined only on 3D, to find the cross product of 
+    a 2D vector we need to use a "trick" and calculate only the z component of 
+    a 3D cross product returning the size of the resulting vector
+
+    a.x x b.x
+    a.y x b.y
+
+    z = a.x * b.y - a.y * b.x
+    */
+
+    parallelogram_area = ac.x * ab.y - ac.y * ab.x;
+    alpha = (pc.x * pb.y - pc.y * pb.x) / parallelogram_area;
+    beta = (ac.x * ap.y - ac.y * ap.x) / parallelogram_area;
+
+    gamma = 1.0 - alpha - beta;
+
+    weights.x = alpha;
+    weights.y = beta;
+    weights.z = gamma;
+
+    return weights;
+}
+
 vec3_t vec3_rotate_x(vec3_t v, float angle) {
     vec3_t r = {
         v.x,
