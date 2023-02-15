@@ -119,8 +119,8 @@ vec3_t calculate_barycentric_weight(vec2_t *a, vec2_t *b, vec2_t *c, vec2_t *p) 
     a 2D vector we need to use a "trick" and calculate only the z component of 
     a 3D cross product returning the size of the resulting vector
 
-    a.x x b.x
-    a.y x b.y
+    a.x \/ b.x
+    a.y /\ b.y
 
     z = a.x * b.y - a.y * b.x
     */
