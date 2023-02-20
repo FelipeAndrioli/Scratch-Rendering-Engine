@@ -132,18 +132,28 @@ void draw_pixel(int x, int y, color_t color) {
 
 void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
     vec2_t p = {x, y};
+    vec2_t a = {face->points[0].x, face->points[0].y};
+    vec2_t b = {face->points[1].x, face->points[1].y};
+    vec2_t c = {face->points[2].x, face->points[2].y};
 
-    vec3_t weights = calculate_barycentric_weight(&face->points[0], 
-        &face->points[1], &face->points[2], &p);
+    vec3_t weights = calculate_barycentric_weight(&a, &b, &c, &p);
 
     float alpha = weights.x;
     float beta = weights.y;
     float gamma = weights.z;
 
-    float interpolated_u = face->texcoords[0].u * alpha + face->texcoords[1].u 
-        * beta + face->texcoords[2].u * gamma;
-    float interpolated_v = face->texcoords[0].v * alpha + face->texcoords[1].v
-        * beta + face->texcoords[2].v * gamma;
+    float interpolated_u = (face->texcoords[0].u / face->points[0].w) * alpha 
+        + (face->texcoords[1].u / face->points[1].w) * beta 
+        + (face->texcoords[2].u / face->points[2].w) * gamma;
+    float interpolated_v = (face->texcoords[0].v / face->points[0].w) * alpha 
+        + (face->texcoords[1].v / face->points[1].w) * beta 
+        + (face->texcoords[2].v / face->points[2].w) * gamma;
+    float interpolated_w = (1 / face->points[0].w) * alpha 
+        + (1 / face->points[1].w) * beta 
+        + (1 / face->points[2].w) * gamma;
+
+    interpolated_u /= interpolated_w;
+    interpolated_v /= interpolated_w;
 
     // scale the uv coordinate (from 0 to 1) to the correct texture size (64 x 64 for example) 
     int texture_x = abs((int)(interpolated_u * texture_width));
@@ -230,12 +240,13 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
 }
 
 void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
-    // TODO change this triangle type to a pointer
     // Flat-top && flat-bottom triangle rendering technique
     if (face->points[0].y > face->points[1].y) {
         // TODO check why we're swapping the triangle points as floats
         float_swap(&face->points[0].y, &face->points[1].y);
         float_swap(&face->points[0].x, &face->points[1].x);
+        float_swap(&face->points[0].z, &face->points[1].z);
+        float_swap(&face->points[0].w, &face->points[1].w);
     
         float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
         float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
@@ -243,6 +254,8 @@ void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
     if (face->points[1].y > face->points[2].y) {
         float_swap(&face->points[1].y, &face->points[2].y);
         float_swap(&face->points[1].x, &face->points[2].x);
+        float_swap(&face->points[1].z, &face->points[1].z);
+        float_swap(&face->points[1].w, &face->points[2].w);
         
         float_swap(&face->texcoords[1].u, &face->texcoords[2].u);
         float_swap(&face->texcoords[1].v, &face->texcoords[2].v);
@@ -250,6 +263,8 @@ void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
     if (face->points[0].y > face->points[1].y) {
         float_swap(&face->points[0].y, &face->points[1].y);
         float_swap(&face->points[0].x, &face->points[1].x);
+        float_swap(&face->points[0].z, &face->points[1].z);
+        float_swap(&face->points[0].w, &face->points[1].w);
         
         float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
         float_swap(&face->texcoords[0].v, &face->texcoords[1].v);

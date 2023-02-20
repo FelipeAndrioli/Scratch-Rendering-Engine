@@ -109,9 +109,9 @@ void update(void) {
     // Initialize the array
     triangles_to_render = NULL;
 
-    mesh.rotation.x += 0.01;
+    //mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    //mesh.rotation.z += 0.01;
 
     //mesh.scale.x += 0.002;
     //mesh.scale.y += 0.001;
@@ -168,7 +168,7 @@ void update(void) {
         
             // Invert y values, our y on z buffer is pointing down but the model
             // y is pointing up, so the object is bein rendered upside down
-            //projected_points[j].y *= -1;
+            projected_points[j].y *= -1;
 
             // translate the projected points to the middle of the screen
             projected_points[j].x += (window_width / 2.0);
@@ -198,9 +198,9 @@ void update(void) {
 
         triangle_t projected_triangle = {
             {
-                {projected_points[0].x, projected_points[0].y},
-                {projected_points[1].x, projected_points[1].y},
-                {projected_points[2].x, projected_points[2].y}
+                {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+                {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+                {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
             },
             {
                 {mesh_face.a_uv.u, mesh_face.a_uv.v},

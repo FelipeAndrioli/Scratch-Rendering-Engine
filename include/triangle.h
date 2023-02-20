@@ -25,7 +25,7 @@ typedef struct {
 
 // triangle_t stores the actual vec2 points of the triangle in the screen
 typedef struct {
-    vec2_t points[3];
+    vec4_t points[3];
     tex2_t texcoords[3];
     color_t color;
     float depth_avg;
