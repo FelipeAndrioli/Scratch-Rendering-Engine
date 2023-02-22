@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 #include "../libs/dynamic_array/array.h"
+#include "../libs/uPNG/upng.h"
 
 #include "../include/log.h"
 #include "../include/display.h"
@@ -41,7 +42,7 @@ void setup(void) {
     }
 
     // Create a SDL texture that is used to display the color buffer
-    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
         SDL_TEXTUREACCESS_STREAMING, window_width, window_height);
 
     if (!color_buffer_texture) {
@@ -59,12 +60,14 @@ void setup(void) {
     //vec3_normalize(&light_direction);
     vec3_normalize(&global_light.direction);
 
-    mesh_texture = (uint32_t*)REDBRICK_TEXTURE;
-
     // load specifically cube values
     load_cube_mesh_data();
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+   
+    // TODO - check if stb image can be used by C
+    // TODO - if above is true, then implement image load with stb image
+    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
 }
 
 void process_input(void) {
