@@ -156,10 +156,10 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
     interpolated_v /= interpolated_w;
 
     // scale the uv coordinate (from 0 to 1) to the correct texture size (64 x 64 for example) 
-    int texture_x = abs((int)(interpolated_u * texture_width));
-    int texture_y = abs((int)(interpolated_v * texture_height));
+    int texture_x = abs((int)(interpolated_u * texture_width)) % texture_width;
+    int texture_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-    if (texture_x > texture_width || texture_y > texture_height) return;
+    //if (texture_x > texture_width || texture_y > texture_height) return;
 
     draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
 }
