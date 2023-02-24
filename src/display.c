@@ -270,6 +270,11 @@ void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
         float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
     }
 
+    // invert the V's
+    face->texcoords[0].v = 1.0 - face->texcoords[0].v;
+    face->texcoords[1].v = 1.0 - face->texcoords[1].v;
+    face->texcoords[2].v = 1.0 - face->texcoords[2].v;
+
     int x0 = face->points[0].x;
     int y0 = face->points[0].y;
     int x1 = face->points[1].x;

@@ -61,8 +61,8 @@ void setup(void) {
     vec3_normalize(&global_light.direction);
 
     // load specifically cube values
-    load_cube_mesh_data();
-    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    //load_cube_mesh_data();
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
    
     // TODO - check if stb image can be used by C
@@ -139,6 +139,11 @@ void update(void) {
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
+        tex2_t texture_vertices[3];
+        texture_vertices[0] = mesh.uvs[mesh_face.ta - 1];
+        texture_vertices[1] = mesh.uvs[mesh_face.tb - 1];
+        texture_vertices[2] = mesh.uvs[mesh_face.tc - 1];
+
         vec4_t transformed_vertices[3];
 
         // Transformations 
@@ -168,7 +173,7 @@ void update(void) {
             // scale the projected points into the view port
             projected_points[j].x *= (window_width / 2.0);
             projected_points[j].y *= (window_height / 2.0);
-        
+            
             // Invert y values, our y on z buffer is pointing down but the model
             // y is pointing up, so the object is bein rendered upside down
             projected_points[j].y *= -1;
@@ -205,10 +210,17 @@ void update(void) {
                 {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
                 {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
             },
+            /*
             {
                 {mesh_face.a_uv.u, mesh_face.a_uv.v},
                 {mesh_face.b_uv.u, mesh_face.b_uv.v},
                 {mesh_face.c_uv.u, mesh_face.c_uv.v}
+            },
+            */
+            {
+                {texture_vertices[0].u, texture_vertices[0].v},
+                {texture_vertices[1].u, texture_vertices[1].v},
+                {texture_vertices[2].u, texture_vertices[2].v}
             },
             triangle_color,
             avg_depth
@@ -247,6 +259,7 @@ void free_resources(void) {
     array_free(mesh.faces);
     array_free(mesh.vertices);
     array_free(mesh.normals);
+    array_free(mesh.uvs);
 }
 
 int main(int argc, char *argv[]) {

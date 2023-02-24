@@ -15,5 +15,6 @@ void process_char(char* vertex);
 void process_face(char* line);
 void process_vertex(char* vertex);
 void process_normals(char* line);
+void process_texture(char* line);
 
 #endif
