@@ -18,10 +18,6 @@ typedef struct {
     int nc;
     */
 
-    int ta;
-    int tb;
-    int tc;
-
     tex2_t a_uv;
     tex2_t b_uv;
     tex2_t c_uv;

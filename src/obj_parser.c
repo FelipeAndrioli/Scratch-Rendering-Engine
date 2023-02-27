@@ -1,5 +1,7 @@
 #include "../include/obj_parser.h"
 
+tex2_t *uvs = NULL;
+
 void process_vertex(char* vertex) {
     char *end_str = strdup(vertex);
     char *token = strtok_r(NULL, " ", &end_str);
@@ -27,7 +29,7 @@ void process_texture(char *line) {
     token = strtok_r(end_str, " ", &end_str);
     new_texture.v = atof(token);
 
-    array_push(mesh.uvs, new_texture);
+    array_push(uvs, new_texture);
 }
 
 void process_normals(char *line) {
@@ -88,9 +90,9 @@ void process_face(char *face) {
     new_face.nc = data[2][2];
     */
 
-    new_face.ta = data[1][0];
-    new_face.tb = data[1][1];
-    new_face.tc = data[1][2];
+    new_face.a_uv = uvs[data[1][0] - 1];
+    new_face.b_uv = uvs[data[1][1] - 1];
+    new_face.c_uv = uvs[data[1][2] - 1];
 
     array_push(mesh.faces, new_face);
 }

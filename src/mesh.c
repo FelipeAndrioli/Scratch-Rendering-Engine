@@ -1,19 +1,14 @@
 #include "../include/mesh.h"
 
-//vec3_t cube_vertices = NULL;
-//face_t cube_faces = NULL;
-
 mesh_t mesh = {
-    NULL,               // vertices 
-    NULL,               // normals 
-    NULL,               // uvs
+    NULL,               // vertices
+    NULL,               // normals
     NULL,               // faces
-    {0, 0, 0},          // rotation
+    {0.0, 0.0, 0.0},    // rotation
     {1.0, 1.0, 1.0},    // scale
     {0.0, 0.0, 0.0}     // translation
 };
 
-/*
 vec3_t cube_vertices[N_CUBE_VERTICES] = {
     {-1, -1, -1},
     {-1, 1, -1},
@@ -39,9 +34,7 @@ face_t cube_faces[N_CUBE_FACES] = {
     {6, 8, 1, {0, 1}, {0, 0}, {1, 0}, 0xFF00FFFF},
     {6, 1, 4, {0, 1}, {1, 0}, {1, 1}, 0xFF00FFFF}
 };
-*/
 
-/*
 void load_cube_mesh_data(void) {
     for (int i = 0; i < N_CUBE_VERTICES; i++) {
         vec3_t cube_vertex = cube_vertices[i];
@@ -53,7 +46,6 @@ void load_cube_mesh_data(void) {
         array_push(mesh.faces, cube_face);
     }
 }
-*/
 
 void load_model_mesh_data(char* filepath) {
     load_obj_data(filepath);

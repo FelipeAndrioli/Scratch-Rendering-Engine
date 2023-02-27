@@ -19,7 +19,6 @@ extern face_t cube_faces[N_CUBE_FACES];
 typedef struct {
     vec3_t *vertices;
     vec3_t *normals;
-    tex2_t *uvs;
     face_t *faces;
     vec3_t rotation;
     vec3_t scale;

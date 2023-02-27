@@ -140,11 +140,6 @@ void update(void) {
         face_vertices[1] = mesh.vertices[mesh_face.b - 1];
         face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
-        tex2_t texture_vertices[3];
-        texture_vertices[0] = mesh.uvs[mesh_face.ta - 1];
-        texture_vertices[1] = mesh.uvs[mesh_face.tb - 1];
-        texture_vertices[2] = mesh.uvs[mesh_face.tc - 1];
-
         vec4_t transformed_vertices[3];
 
         // Transformations 
@@ -211,17 +206,10 @@ void update(void) {
                 {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
                 {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
             },
-            /*
             {
                 {mesh_face.a_uv.u, mesh_face.a_uv.v},
                 {mesh_face.b_uv.u, mesh_face.b_uv.v},
                 {mesh_face.c_uv.u, mesh_face.c_uv.v}
-            },
-            */
-            {
-                {texture_vertices[0].u, texture_vertices[0].v},
-                {texture_vertices[1].u, texture_vertices[1].v},
-                {texture_vertices[2].u, texture_vertices[2].v}
             },
             triangle_color,
             avg_depth
@@ -260,7 +248,6 @@ void free_resources(void) {
     array_free(mesh.faces);
     array_free(mesh.vertices);
     array_free(mesh.normals);
-    array_free(mesh.uvs);
     upng_free(png_texture);
 }
 

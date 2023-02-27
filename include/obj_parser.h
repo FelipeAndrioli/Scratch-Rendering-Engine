@@ -17,4 +17,6 @@ void process_vertex(char* vertex);
 void process_normals(char* line);
 void process_texture(char* line);
 
+extern tex2_t *uvs;
+
 #endif
