@@ -105,7 +105,7 @@ void draw_rect(int pos_x, int pos_y, int width, int height, color_t color) {
     }
 }
 
-void draw_triangle(triangle_t triangle, color_t color) {
+void draw_wireframe(triangle_t triangle, color_t color) {
     dda_draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[1].x,
         triangle.points[1].y, color);
     dda_draw_line(triangle.points[0].x, triangle.points[0].y, triangle.points[2].x,
@@ -178,6 +178,29 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
     if (z_buffer[(window_width * y) + x] > interpolated_w) {
         draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
         // update z buffer
+        z_buffer[(window_width * y) + x] = interpolated_w;
+    }
+}
+
+void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
+    vec2_t p = {x, y};
+    vec2_t a = {face->points[0].x, face->points[0].y};
+    vec2_t b = {face->points[1].x, face->points[1].y};
+    vec2_t c = {face->points[2].x, face->points[2].y};
+
+    vec3_t weights = calculate_barycentric_weight(&a, &b, &c, &p);
+
+    float alpha = weights.x;
+    float beta = weights.y;
+    float gamma = weights.z;
+    
+    float interpolated_w = (1 / face->points[0].w) * alpha 
+        + (1 / face->points[1].w) * beta
+        + (1 / face->points[2].w) * gamma;
+    interpolated_w = 1.0 - interpolated_w;
+
+    if (z_buffer[(window_width * y) + x] > interpolated_w) {
+        draw_pixel(x, y, color);
         z_buffer[(window_width * y) + x] = interpolated_w;
     }
 }
@@ -257,7 +280,7 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     }
 }
 
-void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
+void draw_triangle(triangle_t *face, color_t color, uint32_t *texture) {
     // Flat-top && flat-bottom triangle rendering technique
     if (face->points[0].y > face->points[1].y) {
         // TODO check why we're swapping the triangle points as floats
@@ -314,7 +337,12 @@ void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, face, texture);
+                if (rendering_options.RENDER_TEXTURED) {
+                    draw_texel(x, y, face, texture);
+                }
+                if (rendering_options.RENDER_FILL_TRIANGLE) {
+                    draw_colored_pixel(x, y, face, color);
+                }
             }
         }
     }
@@ -333,7 +361,12 @@ void draw_textured_triangle(triangle_t *face, uint32_t *texture) {
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
             for (int x = x_start; x <= x_end; x++) {
-                draw_texel(x, y, face, texture);
+                if (rendering_options.RENDER_TEXTURED) {
+                    draw_texel(x, y, face, texture);
+                }
+                if (rendering_options.RENDER_FILL_TRIANGLE) {
+                    draw_colored_pixel(x, y, face, color);
+                }
             }
         }
     }
@@ -353,35 +386,15 @@ float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
 }
 
 void draw(triangle_t triangle, color_t color, uint32_t *texture) {
-    if (rendering_options.RENDER_FILL_TRIANGLE) {
-        draw_filled_triangle(triangle, color); 
+    if (rendering_options.RENDER_FILL_TRIANGLE || rendering_options.RENDER_TEXTURED) {
+        draw_triangle(&triangle, color, texture); 
     }
     if (rendering_options.RENDER_VERTEX) {
         draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000);
         draw_rect(triangle.points[1].x - 3, triangle.points[1].y - 3, 6, 6, 0xFFFF0000);
         draw_rect(triangle.points[2].x - 3, triangle.points[2].y - 3, 6, 6, 0xFFFF0000);
     }
-    if (rendering_options.RENDER_TEXTURED) {
-        draw_textured_triangle(&triangle, texture); 
-    }
     if (rendering_options.RENDER_WIREFRAME) {
-        draw_triangle(triangle, 0xFFFFFFFF);
+        draw_wireframe(triangle, 0xFFFFFFFF);
     }
 }
-
-void sort_faces_depth(triangle_t *triangles_to_render) {
-    // bubble sort as a temporary solution to sort the faces while we didn't
-    // learn z-buffer
-    int n_triangles = array_length(triangles_to_render);
-    for (int i = 0; i < n_triangles; i++) {
-        for (int j = i; j < n_triangles; j++) {
-            if (triangles_to_render[i].depth_avg < triangles_to_render[j].depth_avg) {
-                triangle_t temp = triangles_to_render[i];
-                triangles_to_render[i] = triangles_to_render[j];
-                triangles_to_render[j] = temp;
-            }
-        }
-    }
-}
-
-

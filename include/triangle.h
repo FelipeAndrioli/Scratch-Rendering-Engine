@@ -29,7 +29,6 @@ typedef struct {
     vec4_t points[3];
     tex2_t texcoords[3];
     color_t color;
-    float depth_avg;
 } triangle_t;
 
 #endif

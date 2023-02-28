@@ -180,10 +180,6 @@ void update(void) {
             projected_points[j].y += (window_height / 2.0);
         }
 
-        // Calculate the average depth for each face after transformations
-        float avg_depth = (transformed_vertices[0].z + transformed_vertices[1].z
-            + transformed_vertices[2].z) / 3;
-
         vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
         vec3_t b = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
         vec3_t c = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
@@ -212,8 +208,7 @@ void update(void) {
                 {mesh_face.b_uv.u, mesh_face.b_uv.v},
                 {mesh_face.c_uv.u, mesh_face.c_uv.v}
             },
-            triangle_color,
-            avg_depth
+            triangle_color
         };
 
         // save the projected triangle in an array of triangles to render
@@ -222,9 +217,6 @@ void update(void) {
             array_push(triangles_to_render, projected_triangle);
         }
     }
-
-    // Temporary solution before z-buffer
-    sort_faces_depth(triangles_to_render);
 }
 
 void render(void) {
