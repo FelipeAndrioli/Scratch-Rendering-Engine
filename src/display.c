@@ -5,6 +5,7 @@ SDL_Renderer* renderer = NULL;
 SDL_Texture* color_buffer_texture = NULL;
 
 uint32_t *color_buffer = NULL;
+float *z_buffer = NULL;
 
 int window_width = 800;
 int window_height = 600;
@@ -56,6 +57,14 @@ void clear_color_buffer(color_t color) {
     for (int y = 0; y < window_height; y++) {
         for (int x = 0; x < window_width; x++) {
             draw_pixel(x, y, color);
+        }
+    }
+}
+
+void clear_z_buffer() {
+    for (int y = 0; y < window_height; y++) {
+        for (int x = 0; x < window_width; x++) {
+            z_buffer[(window_width * y) + x] = 1.0;
         }
     }
 }
@@ -159,9 +168,18 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
     int texture_x = abs((int)(interpolated_u * texture_width)) % texture_width;
     int texture_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
-    //if (texture_x > texture_width || texture_y > texture_height) return;
+    // with the current implementation, the closer the pixel, the bigger the
+    // z value, so the check wouldn't work, therefore we need to adjustj it
+    // to be the closer the pixel, the smaller the value
+    interpolated_w = 1.0 - interpolated_w;
 
-    draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
+    // only draw the pixel and update the z buffer if the depth value is smaller
+    // than the previous value on the pixel
+    if (z_buffer[(window_width * y) + x] > interpolated_w) {
+        draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
+        // update z buffer
+        z_buffer[(window_width * y) + x] = interpolated_w;
+    }
 }
 
 void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int x2, int y2, color_t color) {

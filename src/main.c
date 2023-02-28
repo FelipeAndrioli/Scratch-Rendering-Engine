@@ -33,8 +33,9 @@ void setup(void) {
     rendering_options.RENDER_WIREFRAME = 0;
     rendering_options.RENDER_TEXTURED = 0;
 
-    // Allocate the memory in bytes to holde the entire color buffer
+    // Allocate the memory in bytes to holde the entire color buffer and z buffer
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
 
     if (!color_buffer) {
         fprintf(stderr, "Error allocating memory for the color buffer\n");
@@ -63,8 +64,8 @@ void setup(void) {
     // load specifically cube values
     //load_cube_mesh_data();
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
-    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj");
+    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png");
    
     // TODO - check if stb image can be used by C
     // TODO - if above is true, then implement image load with stb image
@@ -240,11 +241,13 @@ void render(void) {
     
     render_color_buffer();
     clear_color_buffer(0xFF000000);
+    clear_z_buffer();
     SDL_RenderPresent(renderer);
 }
 
 void free_resources(void) {
     free(color_buffer);
+    free(z_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
     array_free(mesh.normals);
