@@ -15,8 +15,23 @@
 #include "../include/triangle.h"
 #include "../include/texture.h"
 
-// TODO - Remove this hardcoded MAX_TRIANGLES_PER_MESH calculating the amount
-// of triangles we're going to render when loading obj files
+/*
+    TODOs for the whole code
+
+    TODO - After the course is finished, polish and refactor the whole code
+
+    TODO - Completely remove dynamic_array 
+
+    TODO - Remove this hardcoded MAX_TRIANGLES_PER_MESH calculating the amount
+    of triangles we're going to render when loading obj files
+    
+    TODO - check if stb image can be used by C
+    
+    TODO - if above is true, then implement image load with stb image
+
+    TODO - Apply lighting to textured models as well
+*/
+
 #define MAX_TRIANGLES_PER_MESH 10000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
@@ -71,8 +86,6 @@ void setup(void) {
     load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
     load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
    
-    // TODO - check if stb image can be used by C
-    // TODO - if above is true, then implement image load with stb image
     //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
 }
 
@@ -198,7 +211,6 @@ void update(void) {
         vec3_normalize(&face_normal);
     
         // Lighting
-        // TODO - Apply lighting to textured models as well
         float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
         uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
         // End lighting

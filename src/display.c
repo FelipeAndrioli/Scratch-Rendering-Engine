@@ -283,7 +283,6 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
 void draw_triangle(triangle_t *face, color_t color, uint32_t *texture) {
     // Flat-top && flat-bottom triangle rendering technique
     if (face->points[0].y > face->points[1].y) {
-        // TODO check why we're swapping the triangle points as floats
         float_swap(&face->points[0].y, &face->points[1].y);
         float_swap(&face->points[0].x, &face->points[1].x);
         float_swap(&face->points[0].z, &face->points[1].z);
