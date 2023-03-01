@@ -15,7 +15,11 @@
 #include "../include/triangle.h"
 #include "../include/texture.h"
 
-triangle_t *triangles_to_render = NULL;
+// TODO - Remove this hardcoded MAX_TRIANGLES_PER_MESH calculating the amount
+// of triangles we're going to render when loading obj files
+#define MAX_TRIANGLES_PER_MESH 10000
+triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+int num_triangles_to_render = 0;
 
 vec3_t camera_position = {0, 0, 0};
 vec3_t light_direction = {1.0, -1.0, -1.0};
@@ -64,8 +68,8 @@ void setup(void) {
     // load specifically cube values
     //load_cube_mesh_data();
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj");
-    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
    
     // TODO - check if stb image can be used by C
     // TODO - if above is true, then implement image load with stb image
@@ -112,11 +116,12 @@ void update(void) {
     previous_frame_time = SDL_GetTicks();
 
     // Initialize the array
-    triangles_to_render = NULL;
+    //triangles_to_render = NULL;
+    num_triangles_to_render = 0;
 
-    mesh.rotation.x += 0.01;
+    //mesh.rotation.x += 0.01;
     mesh.rotation.y += 0.01;
-    mesh.rotation.z += 0.01;
+    //mesh.rotation.z += 0.01;
 
     //mesh.scale.x += 0.002;
     //mesh.scale.y += 0.001;
@@ -193,6 +198,7 @@ void update(void) {
         vec3_normalize(&face_normal);
     
         // Lighting
+        // TODO - Apply lighting to textured models as well
         float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
         uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
         // End lighting
@@ -213,8 +219,9 @@ void update(void) {
 
         // save the projected triangle in an array of triangles to render
         // this is going to turn very slow in the future, but'll be fixed soon
-        if (culling(&face_normal, transformed_vertices, camera_position) >= 0) {
-            array_push(triangles_to_render, projected_triangle);
+        if (culling(&face_normal, transformed_vertices, camera_position) >= 0 
+            && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
+            triangles_to_render[num_triangles_to_render++] = projected_triangle;
         }
     }
 }
@@ -223,13 +230,12 @@ void render(void) {
     //draw_grid_lines(100, 100);
     draw_grid_dots(10, 10);
 
-    int n_triangles = array_length(triangles_to_render);
-    for (int i = 0; i < n_triangles; i++) {
+    for (int i = 0; i < num_triangles_to_render; i++) {
         triangle_t triangle = triangles_to_render[i];
         draw(triangle, triangles_to_render[i].color, mesh_texture);
     }
 
-    array_free(triangles_to_render);
+    //array_free(triangles_to_render);
     
     render_color_buffer();
     clear_color_buffer(0xFF000000);
