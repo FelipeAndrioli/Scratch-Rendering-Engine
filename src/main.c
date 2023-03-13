@@ -14,6 +14,7 @@
 #include "../include/light.h"
 #include "../include/triangle.h"
 #include "../include/texture.h"
+#include "../include/camera.h"
 
 /*
     TODOs for the whole code
@@ -36,13 +37,14 @@
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
-vec3_t camera_position = {0, 0, 0};
 vec3_t light_direction = {1.0, -1.0, -1.0};
 
 bool is_running = false;
 int previous_frame_time = 0;
 
 mat4_t proj_matrix;
+mat4_t view_matrix;
+mat4_t world_matrix;
 
 void setup(void) {
 
@@ -141,12 +143,19 @@ void update(void) {
 
     //mesh.translation.x += 0.01;
     mesh.translation.z = 5.0;
+
+    camera.position.x += 0.008;
+    camera.position.y += 0.008;
     
     mat4_t scale_matrix = mat4_make_scale(&mesh.scale);
     mat4_t translation_matrix = mat4_make_translation(&mesh.translation);
     mat4_t rotation_matrix_x = mat4_make_rotation_x(&mesh.rotation);
     mat4_t rotation_matrix_y = mat4_make_rotation_y(&mesh.rotation);
     mat4_t rotation_matrix_z = mat4_make_rotation_z(&mesh.rotation);
+
+    vec3_t target = {0, 0, 5.0};
+    vec3_t up = {0, 1, 0};
+    view_matrix = mat4_look_at(&camera.position, &target, &up);
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
@@ -161,12 +170,12 @@ void update(void) {
 
         vec4_t transformed_vertices[3];
 
-        // Transformations 
+        // Model Transformations 
         for (int j = 0; j < 3; j++) {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
          
             // World matrix to scale, rotate and translate
-            mat4_t world_matrix = mat4_identity();
+            world_matrix = mat4_identity();
             world_matrix = mat4_mult_mat4(&scale_matrix, &world_matrix);
             world_matrix = mat4_mult_mat4(&rotation_matrix_x, &world_matrix);
             world_matrix = mat4_mult_mat4(&rotation_matrix_y, &world_matrix);
@@ -175,10 +184,13 @@ void update(void) {
 
             transformed_vertex = mat4_mult_vec4(&world_matrix, &transformed_vertex);
 
+            // View Transformations
+            transformed_vertex = mat4_mult_vec4(&view_matrix, &transformed_vertex);
+
             transformed_vertices[j] = transformed_vertex;
         }
 
-        // Projection
+        // Projection Transformations
         vec4_t projected_points[3];
 
         for (int j = 0; j < 3; j++) {
@@ -229,9 +241,11 @@ void update(void) {
             triangle_color
         };
 
+
         // save the projected triangle in an array of triangles to render
         // this is going to turn very slow in the future, but'll be fixed soon
-        if (culling(&face_normal, transformed_vertices, camera_position) >= 0 
+        vec3_t origin = {0, 0, 0};
+        if (culling(&face_normal, transformed_vertices, origin) >= 0 
             && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
             triangles_to_render[num_triangles_to_render++] = projected_triangle;
         }
