@@ -41,6 +41,7 @@ vec3_t light_direction = {1.0, -1.0, -1.0};
 
 bool is_running = false;
 int previous_frame_time = 0;
+float delta_time = 0;
 
 mat4_t proj_matrix;
 mat4_t view_matrix;
@@ -126,6 +127,9 @@ void update(void) {
         SDL_Delay(wait_time);
     }
 
+    // Difference between the current and the previous frame, converted to seconds
+    delta_time = (SDL_GetTicks() - previous_frame_time) / 1000.0;
+
     // SDL_GetTicks() return how many miliseconds have passed since the 
     // application have started
     previous_frame_time = SDL_GetTicks();
@@ -134,18 +138,18 @@ void update(void) {
     //triangles_to_render = NULL;
     num_triangles_to_render = 0;
 
-    //mesh.rotation.x += 0.01;
-    mesh.rotation.y += 0.01;
+    mesh.rotation.x += 0.6 * delta_time;
+    //mesh.rotation.y += 0.01;
     //mesh.rotation.z += 0.01;
 
     //mesh.scale.x += 0.002;
     //mesh.scale.y += 0.001;
 
-    //mesh.translation.x += 0.01;
+    //mesh.translation.x += 0.6 * delta_time;
     mesh.translation.z = 5.0;
 
-    camera.position.x += 0.008;
-    camera.position.y += 0.008;
+    camera.position.x += 0.6 * delta_time;
+    camera.position.y += 0.6 * delta_time;
     
     mat4_t scale_matrix = mat4_make_scale(&mesh.scale);
     mat4_t translation_matrix = mat4_make_translation(&mesh.translation);
