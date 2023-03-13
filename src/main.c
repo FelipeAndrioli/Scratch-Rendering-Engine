@@ -153,6 +153,14 @@ void update(void) {
     mat4_t rotation_matrix_y = mat4_make_rotation_y(&mesh.rotation);
     mat4_t rotation_matrix_z = mat4_make_rotation_z(&mesh.rotation);
 
+    // World matrix to scale, rotate and translate
+    world_matrix = mat4_identity();
+    world_matrix = mat4_mult_mat4(&scale_matrix, &world_matrix);
+    world_matrix = mat4_mult_mat4(&rotation_matrix_x, &world_matrix);
+    world_matrix = mat4_mult_mat4(&rotation_matrix_y, &world_matrix);
+    world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
+    world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
+
     vec3_t target = {0, 0, 5.0};
     vec3_t up = {0, 1, 0};
     view_matrix = mat4_look_at(&camera.position, &target, &up);
@@ -173,20 +181,9 @@ void update(void) {
         // Model Transformations 
         for (int j = 0; j < 3; j++) {
             vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
-         
-            // World matrix to scale, rotate and translate
-            world_matrix = mat4_identity();
-            world_matrix = mat4_mult_mat4(&scale_matrix, &world_matrix);
-            world_matrix = mat4_mult_mat4(&rotation_matrix_x, &world_matrix);
-            world_matrix = mat4_mult_mat4(&rotation_matrix_y, &world_matrix);
-            world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
-            world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
-
             transformed_vertex = mat4_mult_vec4(&world_matrix, &transformed_vertex);
-
             // View Transformations
             transformed_vertex = mat4_mult_vec4(&view_matrix, &transformed_vertex);
-
             transformed_vertices[j] = transformed_vertex;
         }
 
