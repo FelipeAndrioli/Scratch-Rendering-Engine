@@ -114,6 +114,23 @@ void process_input(void) {
                 rendering_options.CULLING_BACKFACE = !rendering_options.CULLING_BACKFACE;
             if (event.key.keysym.sym == SDLK_5)
                 rendering_options.RENDER_TEXTURED = !rendering_options.RENDER_TEXTURED;
+            if (event.key.keysym.sym == SDLK_w) {
+                camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
+                camera.position = vec3_add(&camera.position, &camera.velocity);
+            }
+            if (event.key.keysym.sym == SDLK_s) {
+                camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
+                camera.position = vec3_sub(&camera.position, &camera.velocity);
+            }
+            if (event.key.keysym.sym == SDLK_a)
+                camera.rotation_angle.y += 1.0 * delta_time;
+            if (event.key.keysym.sym == SDLK_d)
+                camera.rotation_angle.y -= 1.0 * delta_time;
+            if (event.key.keysym.sym == SDLK_UP)
+                camera.position.y += 3.0 * delta_time;
+            if (event.key.keysym.sym == SDLK_DOWN)
+                camera.position.y -= 3.0 * delta_time;
+
             break;
     }
 }
@@ -138,7 +155,7 @@ void update(void) {
     //triangles_to_render = NULL;
     num_triangles_to_render = 0;
 
-    mesh.rotation.x += 0.6 * delta_time;
+    //mesh.rotation.x += 0.6 * delta_time;
     //mesh.rotation.y += 0.01;
     //mesh.rotation.z += 0.01;
 
@@ -148,9 +165,6 @@ void update(void) {
     //mesh.translation.x += 0.6 * delta_time;
     mesh.translation.z = 5.0;
 
-    camera.position.x += 0.6 * delta_time;
-    camera.position.y += 0.6 * delta_time;
-    
     mat4_t scale_matrix = mat4_make_scale(&mesh.scale);
     mat4_t translation_matrix = mat4_make_translation(&mesh.translation);
     mat4_t rotation_matrix_x = mat4_make_rotation_x(&mesh.rotation);
@@ -165,9 +179,14 @@ void update(void) {
     world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
     world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
 
-    vec3_t target = {0, 0, 5.0};
+    vec4_t target = {0, 0, 1, 0};
     vec3_t up = {0, 1, 0};
-    view_matrix = mat4_look_at(&camera.position, &target, &up);
+    mat4_t camera_yaw_rotation = mat4_make_rotation_y(&camera.rotation_angle);
+    camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_yaw_rotation, 
+        &target));
+    vec3_t final_target = vec3_add(&camera.position, &camera.direction);
+
+    view_matrix = mat4_look_at(&camera.position, &final_target, &up);
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
