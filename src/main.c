@@ -122,9 +122,9 @@ void process_input(void) {
                 camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
                 camera.position = vec3_sub(&camera.position, &camera.velocity);
             }
-            if (event.key.keysym.sym == SDLK_a)
+            if (event.key.keysym.sym == SDLK_RIGHT)
                 camera.rotation_angle.y += 1.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_d)
+            if (event.key.keysym.sym == SDLK_LEFT)
                 camera.rotation_angle.y -= 1.0 * delta_time;
             if (event.key.keysym.sym == SDLK_UP)
                 camera.position.y += 3.0 * delta_time;
