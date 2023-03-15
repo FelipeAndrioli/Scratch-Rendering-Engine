@@ -31,6 +31,8 @@
     TODO - if above is true, then implement image load with stb image
 
     TODO - Apply lighting to textured models as well
+
+    TODO - Optimize process_input
 */
 
 #define MAX_TRIANGLES_PER_MESH 10000
@@ -46,6 +48,9 @@ float delta_time = 0;
 mat4_t proj_matrix;
 mat4_t view_matrix;
 mat4_t world_matrix;
+
+int new_mouse_x = 0;
+int new_mouse_y = 0;
 
 void setup(void) {
 
@@ -130,7 +135,39 @@ void process_input(void) {
                 camera.position.y += 3.0 * delta_time;
             if (event.key.keysym.sym == SDLK_DOWN)
                 camera.position.y -= 3.0 * delta_time;
+        case SDL_MOUSEBUTTONDOWN:
+            if (event.button.button == SDL_BUTTON_LEFT) {
+                printf("left\n");
+                printf("x - %d\n", event.button.x);
+                printf("y - %d\n", event.button.y);
+            }
 
+            if (event.button.button == SDL_BUTTON_RIGHT) {
+                printf("right\n");
+                printf("x - %d\n", event.button.x);
+                printf("y - %d\n", event.button.y);
+            }
+        case SDL_MOUSEMOTION:
+
+            if (event.motion.xrel > 0) {
+                camera.rotation_angle.y += 1.0 * delta_time;
+            } else {
+                camera.rotation_angle.y -= 1.0 * delta_time;
+            }
+
+            if (event.motion.yrel > 0) {
+                camera.rotation_angle.x += 1.0 * delta_time;
+            } else {
+                camera.rotation_angle.x -= 1.0 * delta_time;
+            }
+
+            /*
+            printf("xrel - %d\n", event.motion.xrel);
+            printf("yrel - %d\n", event.motion.yrel);
+            printf("x - %d\n", event.motion.x);
+            printf("y - %d\n", event.motion.y);
+            */
+        default:
             break;
     }
 }
@@ -182,8 +219,13 @@ void update(void) {
     vec4_t target = {0, 0, 1, 0};
     vec3_t up = {0, 1, 0};
     mat4_t camera_yaw_rotation = mat4_make_rotation_y(&camera.rotation_angle);
-    camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_yaw_rotation, 
-        &target));
+    mat4_t camera_pitch_rotation = mat4_make_rotation_x(&camera.rotation_angle);
+    //camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_yaw_rotation, 
+    //    &target));
+
+    mat4_t camera_rotation = mat4_mult_mat4(&camera_yaw_rotation, &camera_pitch_rotation);
+    camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_rotation, &target));
+
     vec3_t final_target = vec3_add(&camera.position, &camera.direction);
 
     view_matrix = mat4_look_at(&camera.position, &final_target, &up);
