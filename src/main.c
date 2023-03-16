@@ -33,6 +33,8 @@
     TODO - Apply lighting to textured models as well
 
     TODO - Optimize process_input
+
+    TODO - Change the camera update from main to the camera files 
 */
 
 #define MAX_TRIANGLES_PER_MESH 10000
