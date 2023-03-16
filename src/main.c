@@ -51,6 +51,9 @@ mat4_t world_matrix;
 
 int new_mouse_x = 0;
 int new_mouse_y = 0;
+int last_mouse_x = 0;
+int last_mouse_y = 0;
+bool first_mouse = true;
 
 void setup(void) {
 
@@ -58,7 +61,7 @@ void setup(void) {
     rendering_options.RENDER_FILL_TRIANGLE = 1;
     rendering_options.RENDER_VERTEX = 0;
     rendering_options.RENDER_WIREFRAME = 0;
-    rendering_options.RENDER_TEXTURED = 0;
+    rendering_options.RENDER_TEXTURED = 1;
 
     // Allocate the memory in bytes to holde the entire color buffer and z buffer
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
@@ -137,36 +140,33 @@ void process_input(void) {
                 camera.position.y -= 3.0 * delta_time;
         case SDL_MOUSEBUTTONDOWN:
             if (event.button.button == SDL_BUTTON_LEFT) {
-                printf("left\n");
+                printf("left click\n");
                 printf("x - %d\n", event.button.x);
                 printf("y - %d\n", event.button.y);
             }
 
             if (event.button.button == SDL_BUTTON_RIGHT) {
-                printf("right\n");
+                printf("right click\n");
                 printf("x - %d\n", event.button.x);
                 printf("y - %d\n", event.button.y);
             }
         case SDL_MOUSEMOTION:
-
-            if (event.motion.xrel > 0) {
-                camera.rotation_angle.y += 1.0 * delta_time;
-            } else {
-                camera.rotation_angle.y -= 1.0 * delta_time;
+            SDL_GetMouseState(&new_mouse_x, &new_mouse_y);
+           
+            if (first_mouse) {
+                last_mouse_x = new_mouse_x;
+                last_mouse_y = new_mouse_y;
+                first_mouse = false;
             }
 
-            if (event.motion.yrel > 0) {
-                camera.rotation_angle.x += 1.0 * delta_time;
-            } else {
-                camera.rotation_angle.x -= 1.0 * delta_time;
-            }
+            int x_offset = new_mouse_x - last_mouse_x;
+            int y_offset = new_mouse_y - last_mouse_y;
 
-            /*
-            printf("xrel - %d\n", event.motion.xrel);
-            printf("yrel - %d\n", event.motion.yrel);
-            printf("x - %d\n", event.motion.x);
-            printf("y - %d\n", event.motion.y);
-            */
+            last_mouse_x = new_mouse_x;
+            last_mouse_y = new_mouse_y;
+
+            camera.rotation_angle.y += x_offset * 0.1 * delta_time;
+            camera.rotation_angle.x += y_offset * 0.1 * delta_time;
         default:
             break;
     }
