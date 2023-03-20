@@ -15,6 +15,7 @@
 #include "../include/triangle.h"
 #include "../include/texture.h"
 #include "../include/camera.h"
+#include "../include/clipping.h"
 
 /*
     TODOs for the whole code
@@ -89,6 +90,8 @@ void setup(void) {
     float znear = 0.1;
     float zfar = 100.0;
     proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar); 
+
+    init_frustum_planes(fov, znear, zfar);
 
     //vec3_normalize(&light_direction);
     vec3_normalize(&global_light.direction);
