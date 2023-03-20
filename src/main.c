@@ -237,6 +237,8 @@ void update(void) {
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
+        //if (i != 4) continue;
+
         face_t mesh_face = mesh.faces[i];
 
         // build the set of three vectors from the triangle
@@ -256,6 +258,9 @@ void update(void) {
             transformed_vertex = mat4_mult_vec4(&view_matrix, &transformed_vertex);
             transformed_vertices[j] = transformed_vertex;
         }
+
+        //polygon_t polygon = polygon_from_triangle(transformed_vertices);
+        //clip_polygon(&polygon);
 
         // Projection Transformations
         vec4_t projected_points[3];

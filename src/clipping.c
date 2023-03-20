@@ -40,3 +40,29 @@ void init_frustum_planes(float fov, float z_near, float z_far) {
     frustum_planes[FAR_PLANE].normal.y = 0;
     frustum_planes[FAR_PLANE].normal.x = -1;
 }
+
+void clip(polygon_t *polygon, int plane) {
+
+}
+
+void clip_polygon(polygon_t *polygon) {
+    clip(polygon, LEFT_PLANE);
+    clip(polygon, RIGHT_PLANE);
+    clip(polygon, TOP_PLANE);
+    clip(polygon, BOTTOM_PLANE);
+    clip(polygon, NEAR_PLANE);
+    clip(polygon, FAR_PLANE);
+}
+
+polygon_t polygon_from_triangle(vec4_t *triangle) {
+    polygon_t polygon = {
+        {
+            vec3_from_vec4(triangle[0]), 
+            vec3_from_vec4(triangle[1]), 
+            vec3_from_vec4(triangle[2])
+        },
+        3
+    };
+
+    return polygon;
+}
