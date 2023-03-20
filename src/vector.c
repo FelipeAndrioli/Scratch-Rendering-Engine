@@ -24,6 +24,10 @@ float vec2_length(vec2_t *v) {
     return sqrt(v->x * v->x + v->y * v->y);
 }
 
+vec2_t vec2_new(float x, float y) {
+    return (vec2_t){x, y};
+}
+
 vec2_t vec2_add(vec2_t *a, vec2_t *b) {
     vec2_t result = {a->x + b->x, a->y + b->y};
     return result;
@@ -56,6 +60,10 @@ void vec2_normalize(vec2_t *v) {
 
 float vec3_length(vec3_t *v) {
     return sqrt(v->x * v->x + v->y * v->y + v->z * v->z);
+}
+
+vec3_t vec3_new(float x, float y, float z) {
+    return (vec3_t){x, y, z};
 }
 
 vec3_t vec3_add(vec3_t *a, vec3_t *b) {
