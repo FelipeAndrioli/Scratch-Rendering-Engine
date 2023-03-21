@@ -66,6 +66,10 @@ vec3_t vec3_new(float x, float y, float z) {
     return (vec3_t){x, y, z};
 }
 
+vec3_t vec3_clone(vec3_t *v) {
+    return (vec3_t){v->x, v->y, v->z};
+}
+
 vec3_t vec3_add(vec3_t *a, vec3_t *b) {
     vec3_t result = {a->x + b->x, a->y + b->y, a->z + b->z};
     return result;
