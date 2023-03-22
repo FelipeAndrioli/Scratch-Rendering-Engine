@@ -1,6 +1,5 @@
 #include "../include/clipping.h"
 
-
 plane_t frustum_planes[NUM_PLANES];
 
 void init_frustum_planes(float fov, float z_near, float z_far) {
@@ -58,8 +57,7 @@ void clip(polygon_t *polygon, int plane) {
     float dot_previous_vertex = vec3_dot(&previous_point, &plane_normal);
 
     while (current_vertex != &polygon->vertices[polygon->num_vertices]) {
-        printf("Current dot product %f\n", dot_current_vertex);
-        current_point = vec3_sub(&plane_point, current_vertex);
+        current_point = vec3_sub(current_vertex, &plane_point);
         dot_current_vertex = vec3_dot(&current_point, &plane_normal);
 
         // change the state of the vertex (inside -> outside or vice versa)
@@ -96,17 +94,11 @@ void clip(polygon_t *polygon, int plane) {
 
 void clip_polygon(polygon_t *polygon) {
     clip(polygon, LEFT_PLANE);
-    printf("LEFT Number of polygon vertices after clipping: %d\n", polygon->num_vertices);
     clip(polygon, RIGHT_PLANE);
-    printf("RIGHT Number of polygon vertices after clipping: %d\n", polygon->num_vertices);
     clip(polygon, TOP_PLANE);
-    printf("TOP Number of polygon vertices after clipping: %d\n", polygon->num_vertices);
     clip(polygon, BOTTOM_PLANE);
-    printf("BOTTOM Number of polygon vertices after clipping: %d\n", polygon->num_vertices);
     clip(polygon, NEAR_PLANE);
-    printf("NEAR Number of polygon vertices after clipping: %d\n", polygon->num_vertices);
     clip(polygon, FAR_PLANE);
-    printf("FAR Number of polygon vertices after clipping: %d\n", polygon->num_vertices);
 }
 
 polygon_t polygon_from_triangle(vec4_t *triangle) {

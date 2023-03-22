@@ -98,10 +98,10 @@ void setup(void) {
 
     // load specifically cube values
     //load_cube_mesh_data();
-    //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
-    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
-    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
+    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+    //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
    
 }
 
@@ -237,7 +237,7 @@ void update(void) {
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
-        //if (i != 4) continue;
+        if (i != 4) continue;
 
         face_t mesh_face = mesh.faces[i];
 
@@ -259,8 +259,8 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
-        //polygon_t polygon = polygon_from_triangle(transformed_vertices);
-        //clip_polygon(&polygon);
+        polygon_t polygon = polygon_from_triangle(transformed_vertices);
+        clip_polygon(&polygon);
 
         // Projection Transformations
         vec4_t projected_points[3];
