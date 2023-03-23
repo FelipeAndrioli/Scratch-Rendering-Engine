@@ -85,13 +85,15 @@ void setup(void) {
     }
 
     // need to convert the angle to radians
-    float fov = M_PI / 3.0; 
-    float aspect = (float)window_height / (float)window_width;
+    float aspect_ratio_x = (float)window_width / (float)window_height;
+    float aspect_ratio_y = (float)window_height / (float)window_width;
+    float fov_y = M_PI / 3.0; 
+    float fov_x = 2.0 * atan(tan(fov_y / 2) * aspect_ratio_x); 
     float znear = 0.1;
     float zfar = 100.0;
-    proj_matrix = mat4_make_perspective(fov, aspect, znear, zfar); 
+    proj_matrix = mat4_make_perspective(fov_y, aspect_ratio_y, znear, zfar); 
 
-    init_frustum_planes(fov, znear, zfar);
+    init_frustum_planes(fov_x, fov_y, znear, zfar);
 
     //vec3_normalize(&light_direction);
     vec3_normalize(&global_light.direction);
