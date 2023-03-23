@@ -237,8 +237,6 @@ void update(void) {
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
-        if (i != 4) continue;
-
         face_t mesh_face = mesh.faces[i];
 
         // build the set of three vectors from the triangle
@@ -259,67 +257,77 @@ void update(void) {
             transformed_vertices[j] = transformed_vertex;
         }
 
+        // Clipping
         polygon_t polygon = polygon_from_triangle(transformed_vertices);
         clip_polygon(&polygon);
 
-        // Projection Transformations
-        vec4_t projected_points[3];
+        triangle_t clipped_triangles[MAX_CLIPPED_TRIANGLES];
+        int n_clipped_triangles = 0;
 
-        for (int j = 0; j < 3; j++) {
-            //projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
-            projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &transformed_vertices[j]);
+        triangles_from_polygon(&polygon, clipped_triangles, &n_clipped_triangles);
 
-            // scale the projected points into the view port
-            projected_points[j].x *= (window_width / 2.0);
-            projected_points[j].y *= (window_height / 2.0);
-            
-            // Invert y values, our y on z buffer is pointing down but the model
-            // y is pointing up, so the object is bein rendered upside down
-            projected_points[j].y *= -1;
+        for (int t = 0; t < n_clipped_triangles; t++) {
+            triangle_t clipped_triangle = clipped_triangles[t];
+            // Projection Transformations
+            vec4_t projected_points[3];
 
-            // translate the projected points to the middle of the screen
-            projected_points[j].x += (window_width / 2.0);
-            projected_points[j].y += (window_height / 2.0);
-        }
+            for (int j = 0; j < 3; j++) {
+                //projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
+                //projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &transformed_vertices[j]);
+                projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &clipped_triangle.points[j]);
 
-        vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
-        vec3_t b = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
-        vec3_t c = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
-        vec3_t ab = vec3_sub(&a, &b);
-        vec3_normalize(&ab);
+                // scale the projected points into the view port
+                projected_points[j].x *= (window_width / 2.0);
+                projected_points[j].y *= (window_height / 2.0);
+                
+                // Invert y values, our y on z buffer is pointing down but the model
+                // y is pointing up, so the object is bein rendered upside down
+                projected_points[j].y *= -1;
 
-        vec3_t ac = vec3_sub(&a, &c);
-        vec3_normalize(&ac);
+                // translate the projected points to the middle of the screen
+                projected_points[j].x += (window_width / 2.0);
+                projected_points[j].y += (window_height / 2.0);
+            }
 
-        vec3_t face_normal = vec3_cross(&ab, &ac);
-        vec3_normalize(&face_normal);
-    
-        // Lighting
-        float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
-        uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
-        // End lighting
+            vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
+            vec3_t b = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
+            vec3_t c = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
+            vec3_t ab = vec3_sub(&a, &b);
+            vec3_normalize(&ab);
 
-        triangle_t projected_triangle = {
-            {
-                {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
-                {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
-                {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
-            },
-            {
-                {mesh_face.a_uv.u, mesh_face.a_uv.v},
-                {mesh_face.b_uv.u, mesh_face.b_uv.v},
-                {mesh_face.c_uv.u, mesh_face.c_uv.v}
-            },
-            triangle_color
-        };
+            vec3_t ac = vec3_sub(&a, &c);
+            vec3_normalize(&ac);
+
+            vec3_t face_normal = vec3_cross(&ab, &ac);
+            vec3_normalize(&face_normal);
+        
+            // Lighting
+            float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
+            uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
+            // End lighting
+
+            triangle_t triangle_to_render = {
+                {
+                    {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+                    {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+                    {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
+                },
+                {
+                    {mesh_face.a_uv.u, mesh_face.a_uv.v},
+                    {mesh_face.b_uv.u, mesh_face.b_uv.v},
+                    {mesh_face.c_uv.u, mesh_face.c_uv.v}
+                },
+                triangle_color
+            };
 
 
-        // save the projected triangle in an array of triangles to render
-        // this is going to turn very slow in the future, but'll be fixed soon
-        vec3_t origin = {0, 0, 0};
-        if (culling(&face_normal, transformed_vertices, origin) >= 0 
-            && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
-            triangles_to_render[num_triangles_to_render++] = projected_triangle;
+            // save the projected triangle in an array of triangles to render
+            // this is going to turn very slow in the future, but'll be fixed soon
+            vec3_t origin = {0, 0, 0};
+            if (culling(&face_normal, transformed_vertices, origin) >= 0 
+                && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
+                triangles_to_render[num_triangles_to_render++] = triangle_to_render;
+            }
         }
     }
 }
