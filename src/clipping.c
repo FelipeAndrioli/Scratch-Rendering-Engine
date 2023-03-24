@@ -42,15 +42,23 @@ void init_frustum_planes(float fov_x, float fov_y, float z_near, float z_far) {
     frustum_planes[FAR_PLANE].normal.z = -1;
 }
 
+float float_lerp(float a, float b, float t) {
+    return a + t * (b - a);
+}
+
 void clip(polygon_t *polygon, int plane) {
     vec3_t plane_point = frustum_planes[plane].point;
     vec3_t plane_normal = frustum_planes[plane].normal;
 
     vec3_t inside_vertices[MAX_POLYGON_VERTICES];
+    tex2_t inside_texcoords[MAX_POLYGON_VERTICES];
     int n_inside_vertices = 0;
 
     vec3_t *current_vertex = &polygon->vertices[0];
     vec3_t *previous_vertex = &polygon->vertices[polygon->num_vertices - 1];
+
+    tex2_t *current_texcoord = &polygon->texcoords[0];
+    tex2_t *previous_texcoord = &polygon->texcoords[polygon->num_vertices - 1];
 
     vec3_t current_point = vec3_sub(current_vertex, &plane_point);
     float dot_current_vertex = 0;
@@ -67,21 +75,34 @@ void clip(polygon_t *polygon, int plane) {
             // calculate the t factor 
             float t = dot_previous_vertex / (dot_previous_vertex - dot_current_vertex);
 
-            // calculate the intersection point
-            vec3_t intersection_point = vec3_clone(current_vertex);
-            intersection_point = vec3_sub(&intersection_point, previous_vertex);
-            intersection_point = vec3_mult(&intersection_point, t);
-            intersection_point = vec3_add(&intersection_point, previous_vertex);
+            // calculate the intersection point for the vertex
+            vec3_t intersection_point = {
+                float_lerp(previous_vertex->x, current_vertex->x, t),
+                float_lerp(previous_vertex->y, current_vertex->y, t),
+                float_lerp(previous_vertex->z, current_vertex->z, t)
+
+            };
+
+            // calculate the interpolation point for the texture using lerp formula
+            tex2_t interpolated_texcoord = {
+                float_lerp(previous_texcoord->u, current_texcoord->u, t),
+                float_lerp(previous_texcoord->v, current_texcoord->v, t)
+            };
 
             inside_vertices[n_inside_vertices] = vec3_clone(&intersection_point);
+            inside_texcoords[n_inside_vertices] = tex2_clone(&interpolated_texcoord);
             n_inside_vertices++;
         }
 
         // vertex inside the plane
         if (dot_current_vertex > 0) {
             inside_vertices[n_inside_vertices] = vec3_clone(current_vertex);
+            inside_texcoords[n_inside_vertices] = tex2_clone(current_texcoord);
             n_inside_vertices++;
         }
+
+        previous_texcoord = current_texcoord;
+        current_texcoord++;
 
         dot_previous_vertex = dot_current_vertex; 
         previous_vertex = current_vertex;
@@ -90,6 +111,7 @@ void clip(polygon_t *polygon, int plane) {
 
     for (int i = 0; i < n_inside_vertices; i++) {
         polygon->vertices[i] = vec3_clone(&inside_vertices[i]);
+        polygon->texcoords[i] = tex2_clone(&inside_texcoords[i]);
     }
     polygon->num_vertices = n_inside_vertices;
 }
@@ -114,16 +136,23 @@ void triangles_from_polygon(polygon_t *polygon, triangle_t triangles[],
         triangles[i].points[0] = vec4_from_vec3(polygon->vertices[index0]);
         triangles[i].points[1] = vec4_from_vec3(polygon->vertices[index1]);
         triangles[i].points[2] = vec4_from_vec3(polygon->vertices[index2]);
+
+        triangles[i].texcoords[0] = polygon->texcoords[index0];
+        triangles[i].texcoords[1] = polygon->texcoords[index1];
+        triangles[i].texcoords[2] = polygon->texcoords[index2];
     }
     *n_clipped_triangles = polygon->num_vertices - 2;
 }
 
-polygon_t polygon_from_triangle(vec4_t *triangle) {
+polygon_t polygon_from_triangle(vec4_t *triangle, tex2_t t0, tex2_t t1, tex2_t t2) {
     polygon_t polygon = {
         {
             vec3_from_vec4(triangle[0]), 
             vec3_from_vec4(triangle[1]), 
             vec3_from_vec4(triangle[2])
+        },
+        {
+            t0, t1, t2
         },
         3
     };

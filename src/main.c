@@ -100,10 +100,10 @@ void setup(void) {
 
     // load specifically cube values
     //load_cube_mesh_data();
-    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
-    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
-    //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
+    //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
+    //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
+    load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
+    load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
    
 }
 
@@ -260,7 +260,9 @@ void update(void) {
         }
 
         // Clipping
-        polygon_t polygon = polygon_from_triangle(transformed_vertices);
+        polygon_t polygon = polygon_from_triangle(transformed_vertices, 
+            mesh_face.a_uv, mesh_face.b_uv, mesh_face.c_uv);
+
         clip_polygon(&polygon);
 
         triangle_t clipped_triangles[MAX_CLIPPED_TRIANGLES];
@@ -315,9 +317,9 @@ void update(void) {
                     {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
                 },
                 {
-                    {mesh_face.a_uv.u, mesh_face.a_uv.v},
-                    {mesh_face.b_uv.u, mesh_face.b_uv.v},
-                    {mesh_face.c_uv.u, mesh_face.c_uv.v}
+                    {clipped_triangle.texcoords[0].u, clipped_triangle.texcoords[0].v},
+                    {clipped_triangle.texcoords[1].u, clipped_triangle.texcoords[1].v},
+                    {clipped_triangle.texcoords[2].u, clipped_triangle.texcoords[2].v}
                 },
                 triangle_color
             };
