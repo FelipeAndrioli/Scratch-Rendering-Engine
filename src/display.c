@@ -192,10 +192,10 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
 
     // only draw the pixel and update the z buffer if the depth value is smaller
     // than the previous value on the pixel
-    if (z_buffer[(window_width * y) + x] > interpolated_w) {
+    if (get_zbuffer_at(x, y) > interpolated_w) {
         draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
         // update z buffer
-        z_buffer[(window_width * y) + x] = interpolated_w;
+        update_zbuffer_at(x, y, interpolated_w);
     }
 }
 
@@ -216,9 +216,9 @@ void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
         + (1 / face->points[2].w) * gamma;
     interpolated_w = 1.0 - interpolated_w;
 
-    if (z_buffer[(window_width * y) + x] > interpolated_w) {
+    if (get_zbuffer_at(x, y) > interpolated_w) {
         draw_pixel(x, y, color);
-        z_buffer[(window_width * y) + x] = interpolated_w;
+        update_zbuffer_at(x, y, interpolated_w);
     }
 }
 
@@ -426,6 +426,20 @@ int get_window_width(void) {
 
 int get_window_height(void) {
     return window_height;
+}
+
+float get_zbuffer_at(int x, int y) {
+    if (x < 0 || x >= window_width || y < 0 || y >= window_height) {
+        return 1.0;
+    }
+
+    return z_buffer[(window_width * y) + x];
+}
+
+void update_zbuffer_at(int x, int y, float value) {
+    if (x < 0 || x >= window_width || y < 0 || y >= window_height) return;
+
+    z_buffer[(window_width * y) + x] = value;
 }
 
 void set_render_options(bool culling, bool fill_triangle, bool vertex,

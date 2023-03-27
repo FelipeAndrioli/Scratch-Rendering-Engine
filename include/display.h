@@ -48,11 +48,14 @@ void set_window_dim(int width, int height);
 int get_window_width(void);
 int get_window_height(void);
 
+float get_zbuffer_at(int x, int y);
+void update_zbuffer_at(int x, int y, float value);
+
 void set_render_options(bool culling, bool fill_trianle, bool vertex, bool wireframe, bool textured);
 void change_backface_culling(void);
+void change_render_fill_triangle(void);
 void change_render_vertex(void);
 void change_render_wireframe(void);
-void change_render_fill_triangle(void);
 void change_render_textured(void);
 
 #endif
