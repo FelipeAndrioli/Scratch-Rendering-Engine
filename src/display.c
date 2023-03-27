@@ -1,16 +1,16 @@
 #include "../include/display.h"
 
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-SDL_Texture* color_buffer_texture = NULL;
+static SDL_Window* window = NULL;
+static SDL_Renderer* renderer = NULL;
+static SDL_Texture* color_buffer_texture = NULL;
 
-uint32_t *color_buffer = NULL;
-float *z_buffer = NULL;
+static uint32_t *color_buffer = NULL;
+static float *z_buffer = NULL;
 
-int window_width = 800;
-int window_height = 600;
+static int window_width = 800;
+static int window_height = 600;
 
-render_options rendering_options;
+static render_options rendering_options;
 
 bool initialize_window(void) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -44,6 +44,24 @@ bool initialize_window(void) {
 
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
+    // Allocate the memory in bytes to holde the entire color buffer and z buffer
+    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
+    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
+
+    if (!color_buffer) {
+        fprintf(stderr, "Error allocating memory for the color buffer\n");
+        return false;
+    }
+
+    // Create a SDL texture that is used to display the color buffer
+    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+        SDL_TEXTUREACCESS_STREAMING, window_width, window_height);
+
+    if (!color_buffer_texture) {
+        fprintf(stderr, "Error creating the SDL Texture\n");
+        return false;
+    }
+
     return true;
 }
 
@@ -51,25 +69,24 @@ void render_color_buffer() {
     SDL_UpdateTexture(color_buffer_texture, NULL, color_buffer, 
         (int)(window_width * sizeof(uint32_t)));
     SDL_RenderCopy(renderer, color_buffer_texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 void clear_color_buffer(color_t color) {
-    for (int y = 0; y < window_height; y++) {
-        for (int x = 0; x < window_width; x++) {
-            draw_pixel(x, y, color);
-        }
+    for (int i = 0; i < window_width * window_height; i++) {
+        color_buffer[i] = color;    
     }
 }
 
 void clear_z_buffer() {
-    for (int y = 0; y < window_height; y++) {
-        for (int x = 0; x < window_width; x++) {
-            z_buffer[(window_width * y) + x] = 1.0;
-        }
+    for (int i = 0; i < window_width * window_height; i++) {
+        z_buffer[i] = 1.0;
     }
 }
 
 void destroy_window(void) {
+    free(color_buffer);
+    free(z_buffer);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
@@ -134,9 +151,9 @@ void dda_draw_line(int x0, int y0, int x1, int y1, color_t color) {
 }
 
 void draw_pixel(int x, int y, color_t color) {
-    if (x >= 0 && x < window_width && y >= 0 &&  y < window_height) {
-        color_buffer[(window_width * y) + x] = color;
-    }
+    if (x < 0 || x >= window_width || y < 0 || y >= window_height) return;
+
+    color_buffer[(window_width * y) + x] = color;
 }
 
 void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
@@ -396,4 +413,47 @@ void draw(triangle_t triangle, color_t color, uint32_t *texture) {
     if (rendering_options.RENDER_WIREFRAME) {
         draw_wireframe(triangle, 0xFFFFFFFF);
     }
+}
+
+void set_window_dim(int width, int height) {
+    window_width = width;
+    window_height = height;
+}
+
+int get_window_width(void) {
+    return window_width;
+}
+
+int get_window_height(void) {
+    return window_height;
+}
+
+void set_render_options(bool culling, bool fill_triangle, bool vertex,
+    bool wireframe, bool textured) {
+
+    rendering_options.CULLING_BACKFACE = culling;
+    rendering_options.RENDER_FILL_TRIANGLE = fill_triangle;
+    rendering_options.RENDER_VERTEX = vertex;
+    rendering_options.RENDER_WIREFRAME = wireframe;
+    rendering_options.RENDER_TEXTURED = textured;
+}
+
+void change_backface_culling(void) {
+    rendering_options.CULLING_BACKFACE = !rendering_options.CULLING_BACKFACE;
+}
+
+void change_render_fill_triangle(void) {
+    rendering_options.RENDER_FILL_TRIANGLE = !rendering_options.RENDER_FILL_TRIANGLE;
+}
+
+void change_render_vertex(void) {
+    rendering_options.RENDER_VERTEX = !rendering_options.RENDER_VERTEX;
+}
+
+void change_render_wireframe(void) {
+    rendering_options.RENDER_WIREFRAME = !rendering_options.RENDER_WIREFRAME;
+}
+
+void change_render_textured(void) {
+    rendering_options.RENDER_TEXTURED = !rendering_options.RENDER_TEXTURED;
 }

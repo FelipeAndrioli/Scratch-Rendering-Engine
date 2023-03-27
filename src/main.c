@@ -59,34 +59,12 @@ int last_mouse_y = 0;
 bool first_mouse = true;
 
 void setup(void) {
-
-    rendering_options.CULLING_BACKFACE = 1;
-    rendering_options.RENDER_FILL_TRIANGLE = 1;
-    rendering_options.RENDER_VERTEX = 0;
-    rendering_options.RENDER_WIREFRAME = 0;
-    rendering_options.RENDER_TEXTURED = 1;
-
-    // Allocate the memory in bytes to holde the entire color buffer and z buffer
-    color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
-    z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
-
-    if (!color_buffer) {
-        fprintf(stderr, "Error allocating memory for the color buffer\n");
-        is_running = false;
-    }
-
-    // Create a SDL texture that is used to display the color buffer
-    color_buffer_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-        SDL_TEXTUREACCESS_STREAMING, window_width, window_height);
-
-    if (!color_buffer_texture) {
-        fprintf(stderr, "Error creating the SDL Texture\n");
-        is_running = false;
-    }
+    // culling, fill_triangle, vertex, wireframe, textured
+    set_render_options(1, 0, 0, 0, 1);
 
     // need to convert the angle to radians
-    float aspect_ratio_x = (float)window_width / (float)window_height;
-    float aspect_ratio_y = (float)window_height / (float)window_width;
+    float aspect_ratio_x = (float)get_window_width() / (float)get_window_height();
+    float aspect_ratio_y = (float)get_window_height() / (float)get_window_width();
     float fov_y = M_PI / 3.0; 
     float fov_x = 2.0 * atan(tan(fov_y / 2) * aspect_ratio_x); 
     float znear = 0.1;
@@ -104,78 +82,102 @@ void setup(void) {
     //load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
     load_model_mesh_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
     load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
-   
 }
 
 void process_input(void) {
     SDL_Event event;
-    SDL_PollEvent(&event);
 
-    switch (event.type) {
-        // 'x' button of the window
-        case SDL_QUIT:
-            is_running = false;
-            break;
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == SDLK_ESCAPE) 
+    while(SDL_PollEvent(&event)) {
+        switch (event.type) {
+            // 'x' button of the window
+            case SDL_QUIT:
                 is_running = false;
-            if (event.key.keysym.sym == SDLK_1)
-                rendering_options.RENDER_VERTEX = !rendering_options.RENDER_VERTEX;
-            if (event.key.keysym.sym == SDLK_2)
-                rendering_options.RENDER_WIREFRAME = !rendering_options.RENDER_WIREFRAME;
-            if (event.key.keysym.sym == SDLK_3)
-                rendering_options.RENDER_FILL_TRIANGLE= !rendering_options.RENDER_FILL_TRIANGLE;
-            if (event.key.keysym.sym == SDLK_4)
-                rendering_options.CULLING_BACKFACE = !rendering_options.CULLING_BACKFACE;
-            if (event.key.keysym.sym == SDLK_5)
-                rendering_options.RENDER_TEXTURED = !rendering_options.RENDER_TEXTURED;
-            if (event.key.keysym.sym == SDLK_w) {
-                camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
-                camera.position = vec3_add(&camera.position, &camera.velocity);
-            }
-            if (event.key.keysym.sym == SDLK_s) {
-                camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
-                camera.position = vec3_sub(&camera.position, &camera.velocity);
-            }
-            if (event.key.keysym.sym == SDLK_RIGHT)
-                camera.rotation_angle.y += 1.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_LEFT)
-                camera.rotation_angle.y -= 1.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_UP)
-                camera.position.y += 3.0 * delta_time;
-            if (event.key.keysym.sym == SDLK_DOWN)
-                camera.position.y -= 3.0 * delta_time;
-        case SDL_MOUSEBUTTONDOWN:
-            if (event.button.button == SDL_BUTTON_LEFT) {
-                printf("left click\n");
-                printf("x - %d\n", event.button.x);
-                printf("y - %d\n", event.button.y);
-            }
+                break;
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    is_running = false;
+                    break;
+                } 
+                if (event.key.keysym.sym == SDLK_1) {
+                    change_render_vertex();
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_2) {
+                    change_render_wireframe();
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_3) {
+                    change_render_fill_triangle();
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_4) {
+                    change_backface_culling();
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_5) {
+                    change_render_textured();
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_w) {
+                    camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
+                    camera.position = vec3_add(&camera.position, &camera.velocity);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_s) {
+                    camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
+                    camera.position = vec3_sub(&camera.position, &camera.velocity);
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_RIGHT) {
+                    camera.rotation_angle.y += 1.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_LEFT) {
+                    camera.rotation_angle.y -= 1.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_UP) {
+                    camera.position.y += 3.0 * delta_time;
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_DOWN) {
+                    camera.position.y -= 3.0 * delta_time;
+                    break;
+                }
+            case SDL_MOUSEBUTTONDOWN:
+                if (event.button.button == SDL_BUTTON_LEFT) {
+                    printf("left click\n");
+                    printf("x - %d\n", event.button.x);
+                    printf("y - %d\n", event.button.y);
+                    break;
+                }
 
-            if (event.button.button == SDL_BUTTON_RIGHT) {
-                printf("right click\n");
-                printf("x - %d\n", event.button.x);
-                printf("y - %d\n", event.button.y);
-            }
-        case SDL_MOUSEMOTION:
-            SDL_GetMouseState(&new_mouse_x, &new_mouse_y);
-           
-            if (first_mouse) {
+                if (event.button.button == SDL_BUTTON_RIGHT) {
+                    printf("right click\n");
+                    printf("x - %d\n", event.button.x);
+                    printf("y - %d\n", event.button.y);
+                    break;
+                }
+            case SDL_MOUSEMOTION:
+                SDL_GetMouseState(&new_mouse_x, &new_mouse_y);
+               
+                if (first_mouse) {
+                    last_mouse_x = new_mouse_x;
+                    last_mouse_y = new_mouse_y;
+                    first_mouse = false;
+                }
+
+                int x_offset = new_mouse_x - last_mouse_x;
+                int y_offset = new_mouse_y - last_mouse_y;
+
                 last_mouse_x = new_mouse_x;
                 last_mouse_y = new_mouse_y;
-                first_mouse = false;
-            }
 
-            int x_offset = new_mouse_x - last_mouse_x;
-            int y_offset = new_mouse_y - last_mouse_y;
-
-            last_mouse_x = new_mouse_x;
-            last_mouse_y = new_mouse_y;
-
-            camera.rotation_angle.y += x_offset * 0.1 * delta_time;
-            camera.rotation_angle.x += y_offset * 0.1 * delta_time;
-        default:
-            break;
+                camera.rotation_angle.y += x_offset * 0.1 * delta_time;
+                camera.rotation_angle.x += y_offset * 0.1 * delta_time;
+            default:
+                break;
+        }
     }
 }
 
@@ -281,16 +283,16 @@ void update(void) {
                 projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &clipped_triangle.points[j]);
 
                 // scale the projected points into the view port
-                projected_points[j].x *= (window_width / 2.0);
-                projected_points[j].y *= (window_height / 2.0);
+                projected_points[j].x *= (get_window_width() / 2.0);
+                projected_points[j].y *= (get_window_height() / 2.0);
                 
                 // Invert y values, our y on z buffer is pointing down but the model
                 // y is pointing up, so the object is bein rendered upside down
                 projected_points[j].y *= -1;
 
                 // translate the projected points to the middle of the screen
-                projected_points[j].x += (window_width / 2.0);
-                projected_points[j].y += (window_height / 2.0);
+                projected_points[j].x += (get_window_width() / 2.0);
+                projected_points[j].y += (get_window_height() / 2.0);
             }
 
             vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
@@ -338,6 +340,8 @@ void update(void) {
 
 void render(void) {
     //draw_grid_lines(100, 100);
+    clear_color_buffer(0xFF000000);
+    clear_z_buffer();
     draw_grid_dots(10, 10);
 
     for (int i = 0; i < num_triangles_to_render; i++) {
@@ -345,17 +349,10 @@ void render(void) {
         draw(triangle, triangles_to_render[i].color, mesh_texture);
     }
 
-    //array_free(triangles_to_render);
-    
     render_color_buffer();
-    clear_color_buffer(0xFF000000);
-    clear_z_buffer();
-    SDL_RenderPresent(renderer);
 }
 
 void free_resources(void) {
-    free(color_buffer);
-    free(z_buffer);
     array_free(mesh.faces);
     array_free(mesh.vertices);
     array_free(mesh.normals);

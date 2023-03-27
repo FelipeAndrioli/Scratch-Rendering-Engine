@@ -22,18 +22,6 @@ typedef struct {
 
 typedef uint32_t color_t;
 
-extern SDL_Window *window;
-extern SDL_Renderer *renderer;
-extern SDL_Texture *color_buffer_texture;
-
-extern uint32_t *color_buffer;
-extern float *z_buffer;
-
-extern int window_width;
-extern int window_height;
-
-extern render_options rendering_options;
-
 bool initialize_window(void);
 void render_color_buffer();
 void clear_color_buffer(color_t color);
@@ -55,4 +43,16 @@ void draw_triangle(triangle_t *face, color_t color, uint32_t *texture);
 
 float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position);
 void draw(triangle_t triangle, color_t color, uint32_t *texture);
+
+void set_window_dim(int width, int height);
+int get_window_width(void);
+int get_window_height(void);
+
+void set_render_options(bool culling, bool fill_trianle, bool vertex, bool wireframe, bool textured);
+void change_backface_culling(void);
+void change_render_vertex(void);
+void change_render_wireframe(void);
+void change_render_fill_triangle(void);
+void change_render_textured(void);
+
 #endif
