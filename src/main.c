@@ -42,8 +42,6 @@
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
-vec3_t light_direction = {1.0, -1.0, -1.0};
-
 bool is_running = false;
 int previous_frame_time = 0;
 float delta_time = 0;
@@ -62,6 +60,8 @@ void setup(void) {
     // culling, fill_triangle, vertex, wireframe, textured
     set_render_options(1, 0, 0, 0, 1);
 
+    init_light(vec3_new(0, 0, 1));
+
     // need to convert the angle to radians
     float aspect_ratio_x = (float)get_window_width() / (float)get_window_height();
     float aspect_ratio_y = (float)get_window_height() / (float)get_window_width();
@@ -73,8 +73,7 @@ void setup(void) {
 
     init_frustum_planes(fov_x, fov_y, znear, zfar);
 
-    //vec3_normalize(&light_direction);
-    vec3_normalize(&global_light.direction);
+    vec3_normalize(get_light_direction_address());
 
     // load specifically cube values
     //load_cube_mesh_data();
@@ -201,7 +200,7 @@ void update(void) {
     //triangles_to_render = NULL;
     num_triangles_to_render = 0;
 
-    //mesh.rotation.x += 0.6 * delta_time;
+    mesh.rotation.x += 0.6 * delta_time;
     //mesh.rotation.y += 0.01;
     //mesh.rotation.z += 0.01;
 
@@ -308,7 +307,8 @@ void update(void) {
             vec3_normalize(&face_normal);
         
             // Lighting
-            float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
+            //float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
+            float light_intensity = -vec3_dot(get_light_direction_address(), &face_normal);
             uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
             // End lighting
 
