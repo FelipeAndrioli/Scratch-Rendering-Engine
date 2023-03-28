@@ -10,6 +10,16 @@ typedef struct {
     vec3_t rotation_angle;
 } camera_t;
 
-extern camera_t camera;
+void init_camera(void);
+
+void update_camera_position(vec3_t position);
+void update_camera_direction(vec3_t direction);
+void update_camera_velocity(vec3_t velocity);
+void update_camera_rotation(vec3_t rotation);
+
+vec3_t* get_camera_position(void);
+vec3_t* get_camera_direction(void);
+vec3_t* get_camera_velocity(void);
+vec3_t* get_camera_rotation(void);
 
 #endif

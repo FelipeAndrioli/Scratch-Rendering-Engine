@@ -118,29 +118,41 @@ void process_input(void) {
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_w) {
-                    camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
-                    camera.position = vec3_add(&camera.position, &camera.velocity);
+                    update_camera_velocity(vec3_mult(get_camera_direction(), 
+                        5.0 * delta_time));
+                    update_camera_position(vec3_add(get_camera_position(), 
+                        get_camera_velocity()));
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    camera.velocity = vec3_mult(&camera.direction, 5.0 * delta_time);
-                    camera.position = vec3_sub(&camera.position, &camera.velocity);
+                    update_camera_velocity(vec3_mult(get_camera_direction(), 
+                        5.0 * delta_time));
+                    update_camera_position(vec3_sub(get_camera_position(), 
+                        get_camera_velocity()));
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_RIGHT) {
-                    camera.rotation_angle.y += 1.0 * delta_time;
+                    vec3_t *camera_rotation = get_camera_rotation();
+                    camera_rotation->y += 1.0 * delta_time;
+                    update_camera_rotation(*camera_rotation);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_LEFT) {
-                    camera.rotation_angle.y -= 1.0 * delta_time;
+                    vec3_t *camera_rotation = get_camera_rotation();
+                    camera_rotation->y -= 1.0 * delta_time;
+                    update_camera_rotation(*camera_rotation);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_UP) {
-                    camera.position.y += 3.0 * delta_time;
+                    vec3_t *camera_position = get_camera_position();
+                    camera_position->y += 3.0 * delta_time;
+                    update_camera_position(*camera_position);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_DOWN) {
-                    camera.position.y -= 3.0 * delta_time;
+                    vec3_t *camera_position = get_camera_position();
+                    camera_position->y -= 3.0 * delta_time;
+                    update_camera_position(*camera_position);
                     break;
                 }
             case SDL_MOUSEBUTTONDOWN:
@@ -172,8 +184,10 @@ void process_input(void) {
                 last_mouse_x = new_mouse_x;
                 last_mouse_y = new_mouse_y;
 
-                camera.rotation_angle.y += x_offset * 0.1 * delta_time;
-                camera.rotation_angle.x += y_offset * 0.1 * delta_time;
+                vec3_t *camera_rotation = get_camera_rotation();
+                camera_rotation->y += x_offset * 0.1 * delta_time;
+                camera_rotation->x += y_offset * 0.1 * delta_time;
+                update_camera_rotation(*camera_rotation);
             default:
                 break;
         }
@@ -226,17 +240,17 @@ void update(void) {
 
     vec4_t target = {0, 0, 1, 0};
     vec3_t up = {0, 1, 0};
-    mat4_t camera_yaw_rotation = mat4_make_rotation_y(&camera.rotation_angle);
-    mat4_t camera_pitch_rotation = mat4_make_rotation_x(&camera.rotation_angle);
+    mat4_t camera_yaw_rotation = mat4_make_rotation_y(get_camera_rotation());
+    mat4_t camera_pitch_rotation = mat4_make_rotation_x(get_camera_rotation());
     //camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_yaw_rotation, 
     //    &target));
 
     mat4_t camera_rotation = mat4_mult_mat4(&camera_yaw_rotation, &camera_pitch_rotation);
-    camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_rotation, &target));
+    update_camera_direction(vec3_from_vec4(mat4_mult_vec4(&camera_rotation, &target)));
 
-    vec3_t final_target = vec3_add(&camera.position, &camera.direction);
+    vec3_t final_target = vec3_add(get_camera_position(), get_camera_direction());
 
-    view_matrix = mat4_look_at(&camera.position, &final_target, &up);
+    view_matrix = mat4_look_at(get_camera_position(), &final_target, &up);
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
