@@ -43,6 +43,7 @@ triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 int num_triangles_to_render = 0;
 
 bool is_running = false;
+bool debug_mode = false;
 int previous_frame_time = 0;
 float delta_time = 0;
 
@@ -155,6 +156,9 @@ void process_input(void) {
                     update_camera_position(*camera_position);
                     break;
                 }
+                if (event.key.keysym.sym == SDLK_0) {
+                    debug_mode = !debug_mode;
+                }
             case SDL_MOUSEBUTTONDOWN:
                 if (event.button.button == SDL_BUTTON_LEFT) {
                     printf("left click\n");
@@ -170,6 +174,11 @@ void process_input(void) {
                     break;
                 }
             case SDL_MOUSEMOTION:
+                if (debug_mode) {
+                    first_mouse = true;
+                    break;
+                };
+
                 SDL_GetMouseState(&new_mouse_x, &new_mouse_y);
                
                 if (first_mouse) {
