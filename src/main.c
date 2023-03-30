@@ -132,6 +132,14 @@ void process_input(void) {
                         get_camera_velocity()));
                     break;
                 }
+                if (event.key.keysym.sym == SDLK_a) {
+                    // TODO 
+                    break;
+                }
+                if (event.key.keysym.sym == SDLK_d) {
+                    // TODO
+                    break;
+                }
                 if (event.key.keysym.sym == SDLK_RIGHT) {
                     vec3_t *camera_rotation = get_camera_rotation();
                     camera_rotation->y += 1.0 * delta_time;
