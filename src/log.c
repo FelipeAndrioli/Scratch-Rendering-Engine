@@ -16,6 +16,10 @@ void log_vec3(vec3_t vec3) {
     printf("%f %f %f\n", vec3.x, vec3.y, vec3.z);
 }
 
+void log_vec3_pointer(vec3_t *vec3) {
+    printf("%f %f %f\n", vec3->x, vec3->y, vec3->z);
+}
+
 void log_vec4(vec4_t vec4) {
     printf("%f %f %f %f\n", vec4.x, vec4.y, vec4.z, vec4.w);
 }
