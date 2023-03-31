@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "./vector.h"
+#include "./log.h"
 
 typedef struct {
     vec3_t forward;
@@ -18,7 +19,9 @@ enum {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP,
+    DOWN
 };
 
 void init_camera(vec3_t *eye, vec3_t target, vec3_t up_helper);

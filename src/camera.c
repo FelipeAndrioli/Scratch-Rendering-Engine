@@ -40,21 +40,38 @@ void update_camera_rotation(vec3_t rotation) {
 
 void process_camera_movement(int direction, float delta_time) {
     if (direction == FORWARD) {
-        update_camera_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
-        update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+        //update_camera_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
+        //update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
+        camera.forward = vec3_mult(&camera.forward, 5.0 * delta_time);
+        camera.position = vec3_add(&camera.position, &camera.forward);
     }
 
     if (direction == BACKWARD) {
-        update_camera_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
-        update_camera_position(vec3_sub(get_camera_position(), get_camera_velocity()));
+        //update_camera_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
+        //update_camera_position(vec3_sub(get_camera_position(), get_camera_velocity()));
+        
+        camera.forward = vec3_mult(&camera.forward, 5.0 * delta_time);
+        camera.position = vec3_sub(&camera.position, &camera.forward);
     }
 
     if (direction == LEFT) {
-        return;
+        camera.right = vec3_mult(&camera.right, 5.0 * delta_time);
+        camera.position = vec3_sub(&camera.position, &camera.right);
     }
 
     if (direction == RIGHT) {
-        return;
+        camera.right = vec3_mult(&camera.right, 5.0 * delta_time);
+        camera.position = vec3_add(&camera.position, &camera.right);
+    }
+
+    if (direction == UP) {
+        camera.up = vec3_mult(&camera.up, 5.0 * delta_time);
+        camera.position = vec3_add(&camera.position, &camera.up);
+    }
+
+    if (direction == DOWN) {
+        camera.up = vec3_mult(&camera.up, 5.0 * delta_time);
+        camera.position = vec3_sub(&camera.position, &camera.up);
     }
 }
 
