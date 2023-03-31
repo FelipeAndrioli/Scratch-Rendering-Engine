@@ -40,16 +40,11 @@ void update_camera_rotation(vec3_t rotation) {
 
 void process_camera_movement(int direction, float delta_time) {
     if (direction == FORWARD) {
-        //update_camera_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
-        //update_camera_position(vec3_add(get_camera_position(), get_camera_velocity()));
         camera.forward = vec3_mult(&camera.forward, 5.0 * delta_time);
         camera.position = vec3_add(&camera.position, &camera.forward);
     }
 
     if (direction == BACKWARD) {
-        //update_camera_velocity(vec3_mult(get_camera_direction(), 5.0 * delta_time));
-        //update_camera_position(vec3_sub(get_camera_position(), get_camera_velocity()));
-        
         camera.forward = vec3_mult(&camera.forward, 5.0 * delta_time);
         camera.position = vec3_sub(&camera.position, &camera.forward);
     }
@@ -73,6 +68,27 @@ void process_camera_movement(int direction, float delta_time) {
         camera.up = vec3_mult(&camera.up, 5.0 * delta_time);
         camera.position = vec3_sub(&camera.position, &camera.up);
     }
+}
+
+void process_mouse_input(int *new_mouse_x, int *new_mouse_y, int *last_mouse_x,
+    int *last_mouse_y, bool *first_mouse, float delta_time) {
+   
+    if (*first_mouse) {
+        *last_mouse_x = *new_mouse_x;
+        *last_mouse_y = *new_mouse_y;
+        *first_mouse = false;
+    }
+
+    int x_offset = *new_mouse_x - *last_mouse_x;
+    int y_offset = *new_mouse_y - *last_mouse_y;
+
+    *last_mouse_x = *new_mouse_x;
+    *last_mouse_y = *new_mouse_y;
+
+    vec3_t *camera_rotation = get_camera_rotation();
+    camera_rotation->y += x_offset * 0.1 * delta_time;
+    camera_rotation->x += y_offset * 0.1 * delta_time;
+    update_camera_rotation(*camera_rotation);
 }
 
 vec3_t* get_camera_position(void) {

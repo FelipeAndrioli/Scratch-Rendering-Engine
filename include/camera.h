@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <stdbool.h>
 #include "./vector.h"
-#include "./log.h"
 
 typedef struct {
     vec3_t forward;
@@ -33,6 +33,8 @@ void update_camera_velocity(vec3_t velocity);
 void update_camera_rotation(vec3_t rotation);
 
 void process_camera_movement(int direction, float delta_time);
+void process_mouse_input(int *new_mouse_x, int *new_mouse_y, int *last_mouse_x,
+    int *last_mouse_y, bool *first_mouse, float delta_time);
 
 vec3_t* get_camera_position(void);
 vec3_t* get_camera_direction(void);

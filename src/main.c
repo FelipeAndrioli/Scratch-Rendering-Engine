@@ -35,7 +35,11 @@
 
     TODO - Optimize process_input
 
-    TODO - Change the camera update from main to the camera files 
+    TODO - Create mouse struct
+
+    TODO - Create keyboard struct
+
+    TODO - Create keyboard states (pressed, released, ...)
 */
 
 #define MAX_TRIANGLES_PER_MESH 10000
@@ -191,23 +195,9 @@ void process_input(void) {
                 };
 
                 SDL_GetMouseState(&new_mouse_x, &new_mouse_y);
-               
-                if (first_mouse) {
-                    last_mouse_x = new_mouse_x;
-                    last_mouse_y = new_mouse_y;
-                    first_mouse = false;
-                }
-
-                int x_offset = new_mouse_x - last_mouse_x;
-                int y_offset = new_mouse_y - last_mouse_y;
-
-                last_mouse_x = new_mouse_x;
-                last_mouse_y = new_mouse_y;
-
-                vec3_t *camera_rotation = get_camera_rotation();
-                camera_rotation->y += x_offset * 0.1 * delta_time;
-                camera_rotation->x += y_offset * 0.1 * delta_time;
-                update_camera_rotation(*camera_rotation);
+    
+                process_mouse_input(&new_mouse_x, &new_mouse_y, &last_mouse_x,
+                    &last_mouse_y, &first_mouse, delta_time);
             default:
                 break;
         }
