@@ -62,6 +62,7 @@ void setup(void) {
     set_render_options(1, 0, 0, 0, 1);
 
     init_light(vec3_new(0, 0, 1));
+    init_camera(get_camera_position(), vec3_new(0, 0, 1), vec3_new(0, 1, 0));
 
     // need to convert the angle to radians
     float aspect_ratio_x = (float)get_window_width() / (float)get_window_height();
@@ -119,25 +120,19 @@ void process_input(void) {
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_w) {
-                    update_camera_velocity(vec3_mult(get_camera_direction(), 
-                        5.0 * delta_time));
-                    update_camera_position(vec3_add(get_camera_position(), 
-                        get_camera_velocity()));
+                    process_camera_movement(FORWARD, delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_s) {
-                    update_camera_velocity(vec3_mult(get_camera_direction(), 
-                        5.0 * delta_time));
-                    update_camera_position(vec3_sub(get_camera_position(), 
-                        get_camera_velocity()));
+                    process_camera_movement(BACKWARD, delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_a) {
-                    // TODO 
+                    process_camera_movement(LEFT, delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_d) {
-                    // TODO
+                    process_camera_movement(RIGHT, delta_time);
                     break;
                 }
                 if (event.key.keysym.sym == SDLK_RIGHT) {
