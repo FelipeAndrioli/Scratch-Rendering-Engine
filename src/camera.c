@@ -73,3 +73,15 @@ vec3_t* get_camera_velocity(void) {
 vec3_t* get_camera_rotation(void) {
     return &camera.rotation_angle;
 }
+
+vec3_t* get_camera_forward(void) {
+    return &camera.forward;
+}
+
+vec3_t* get_camera_right(void) {
+    return &camera.right;
+}
+
+vec3_t* get_camera_up(void) {
+    return &camera.up;
+}

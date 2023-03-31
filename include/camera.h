@@ -35,5 +35,8 @@ vec3_t* get_camera_position(void);
 vec3_t* get_camera_direction(void);
 vec3_t* get_camera_velocity(void);
 vec3_t* get_camera_rotation(void);
+vec3_t* get_camera_forward(void);
+vec3_t* get_camera_right(void);
+vec3_t* get_camera_up(void);
 
 #endif

@@ -261,8 +261,11 @@ void update(void) {
     update_camera_direction(vec3_from_vec4(mat4_mult_vec4(&camera_rotation, &target)));
 
     vec3_t final_target = vec3_add(get_camera_position(), get_camera_direction());
-
-    view_matrix = mat4_look_at(get_camera_position(), &final_target, &up);
+    update_camera_vectors(get_camera_position(), &final_target, &up);
+    //view_matrix = mat4_look_at(get_camera_position(), &final_target, &up);
+    
+    view_matrix = mat4_look_at(get_camera_position(), get_camera_forward(),
+        get_camera_right(), get_camera_up());
 
     int n_faces = array_length(mesh.faces);
     for (int i = 0; i < n_faces; i++) {
