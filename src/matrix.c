@@ -113,25 +113,3 @@ vec4_t mat4_mult_vec4_project(mat4_t *mat_proj, vec4_t *v) {
 
     return result;
 }
-
-mat4_t mat4_look_at(vec3_t *eye, vec3_t *forward, vec3_t *right, vec3_t *up) {
-    /*
-    vec3_t forward = vec3_sub(target, eye);
-    vec3_normalize(&forward);
-
-    vec3_t right = vec3_cross(up_helper, &forward);
-    vec3_normalize(&right);
-
-    vec3_t up = vec3_cross(&forward, &right);
-    vec3_normalize(&up);
-    */
-
-    mat4_t view_matrix = {{
-        {right->x, right->y, right->z, -vec3_dot(right, eye)},
-        {up->x, up->y, up->z, -vec3_dot(up, eye)},
-        {forward->x, forward->y, forward->z, -vec3_dot(forward, eye)},
-        {0, 0, 0, 1}
-    }};
-
-    return view_matrix;
-}

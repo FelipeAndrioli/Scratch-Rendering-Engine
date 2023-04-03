@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include "./vector.h"
+#include "./matrix.h"
 
 typedef struct {
     vec3_t forward;
@@ -43,5 +44,7 @@ vec3_t* get_camera_rotation(void);
 vec3_t* get_camera_forward(void);
 vec3_t* get_camera_right(void);
 vec3_t* get_camera_up(void);
+
+mat4_t mat4_look_at(vec3_t *eye, vec3_t *forward, vec3_t *right, vec3_t *up);
 
 #endif

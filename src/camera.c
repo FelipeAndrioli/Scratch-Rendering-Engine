@@ -118,3 +118,15 @@ vec3_t* get_camera_right(void) {
 vec3_t* get_camera_up(void) {
     return &camera.up;
 }
+
+mat4_t mat4_look_at(vec3_t *eye, vec3_t *forward, vec3_t *right, vec3_t *up) {
+
+    mat4_t view_matrix = {{
+        {right->x, right->y, right->z, -vec3_dot(right, eye)},
+        {up->x, up->y, up->z, -vec3_dot(up, eye)},
+        {forward->x, forward->y, forward->z, -vec3_dot(forward, eye)},
+        {0, 0, 0, 1}
+    }};
+
+    return view_matrix;
+}
