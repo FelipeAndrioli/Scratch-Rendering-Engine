@@ -248,20 +248,7 @@ void update(void) {
     world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
     world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
 
-    vec4_t target = {0, 0, 1, 0};
-    vec3_t up = {0, 1, 0};
-    mat4_t camera_yaw_rotation = mat4_make_rotation_y(get_camera_rotation());
-    mat4_t camera_pitch_rotation = mat4_make_rotation_x(get_camera_rotation());
-    //camera.direction = vec3_from_vec4(mat4_mult_vec4(&camera_yaw_rotation, 
-    //    &target));
-
-    mat4_t camera_rotation = mat4_mult_mat4(&camera_yaw_rotation, &camera_pitch_rotation);
-    update_camera_direction(vec3_from_vec4(mat4_mult_vec4(&camera_rotation, &target)));
-
-    vec3_t final_target = vec3_add(get_camera_position(), get_camera_direction());
-    update_camera_vectors(get_camera_position(), &final_target, &up);
-    //view_matrix = mat4_look_at(get_camera_position(), &final_target, &up);
-    
+    update_camera();
     view_matrix = mat4_look_at(get_camera_position(), get_camera_forward(),
         get_camera_right(), get_camera_up());
 

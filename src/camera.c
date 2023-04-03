@@ -5,7 +5,6 @@ static camera_t camera;
 void init_camera(vec3_t *eye, vec3_t target, vec3_t up_helper) {
     camera.position = vec3_new(0, 0, 0);
     camera.direction = vec3_new(0, 0, 1);
-    camera.velocity = vec3_new(0, 0, 0);
     camera.rotation_angle = vec3_new(0, 0, 0);
 
     update_camera_vectors(eye, &target, &up_helper);
@@ -28,10 +27,6 @@ void update_camera_position(vec3_t position) {
 
 void update_camera_direction(vec3_t direction) {
     camera.direction = direction;
-}
-
-void update_camera_velocity(vec3_t velocity) {
-    camera.velocity = velocity;
 }
 
 void update_camera_rotation(vec3_t rotation) {
@@ -99,10 +94,6 @@ vec3_t* get_camera_direction(void) {
     return &camera.direction;
 }
 
-vec3_t* get_camera_velocity(void) {
-    return &camera.velocity;
-}
-
 vec3_t* get_camera_rotation(void) {
     return &camera.rotation_angle;
 }
@@ -117,6 +108,19 @@ vec3_t* get_camera_right(void) {
 
 vec3_t* get_camera_up(void) {
     return &camera.up;
+}
+
+void update_camera(void) {
+    vec4_t target = {0, 0, 1, 0};
+    vec3_t up = {0, 1, 0};
+    mat4_t camera_yaw_rotation = mat4_make_rotation_y(get_camera_rotation());
+    mat4_t camera_pitch_rotation = mat4_make_rotation_x(get_camera_rotation());
+    mat4_t camera_rotation = mat4_mult_mat4(&camera_yaw_rotation, 
+        &camera_pitch_rotation);
+    update_camera_direction(vec3_from_vec4(mat4_mult_vec4(&camera_rotation, 
+        &target)));
+    vec3_t final_target = vec3_add(get_camera_position(), get_camera_direction());
+    update_camera_vectors(get_camera_position(), &final_target, &up);
 }
 
 mat4_t mat4_look_at(vec3_t *eye, vec3_t *forward, vec3_t *right, vec3_t *up) {
