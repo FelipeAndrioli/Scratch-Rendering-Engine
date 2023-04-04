@@ -2,6 +2,9 @@
 #define TRIANGLE_H
 
 #include <stdint.h>
+
+#include "../libs/uPNG/upng.h"
+
 #include "./vector.h"
 #include "./texture.h"
 
@@ -29,6 +32,7 @@ typedef struct {
     vec4_t points[3];
     tex2_t texcoords[3];
     color_t color;
+    upng_t *texture;
 } triangle_t;
 
 #endif

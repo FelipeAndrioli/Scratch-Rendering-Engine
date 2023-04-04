@@ -50,7 +50,7 @@ bool initialize_window(void) {
     }
 
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-
+    
     // Allocate the memory in bytes to holde the entire color buffer and z buffer
     color_buffer = (uint32_t*) malloc(sizeof(uint32_t) * window_width * window_height);
     z_buffer = (float*) malloc(sizeof(float) * window_width * window_height);
@@ -163,7 +163,7 @@ void draw_pixel(int x, int y, color_t color) {
     color_buffer[(window_width * y) + x] = color;
 }
 
-void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
+void draw_texel(int x, int y, triangle_t *face, upng_t *texture) {
     vec2_t p = {x, y};
     vec2_t a = {face->points[0].x, face->points[0].y};
     vec2_t b = {face->points[1].x, face->points[1].y};
@@ -188,6 +188,9 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
     interpolated_u /= interpolated_w;
     interpolated_v /= interpolated_w;
 
+    int texture_width = upng_get_width(texture);
+    int texture_height = upng_get_height(texture);
+
     // scale the uv coordinate (from 0 to 1) to the correct texture size (64 x 64 for example) 
     int texture_x = abs((int)(interpolated_u * texture_width)) % texture_width;
     int texture_y = abs((int)(interpolated_v * texture_height)) % texture_height;
@@ -200,7 +203,10 @@ void draw_texel(int x, int y, triangle_t *face, uint32_t *texture) {
     // only draw the pixel and update the z buffer if the depth value is smaller
     // than the previous value on the pixel
     if (get_zbuffer_at(x, y) > interpolated_w) {
-        draw_pixel(x, y, texture[(texture_width * texture_y) + texture_x]);
+
+        uint32_t *texture_buffer = (uint32_t*)upng_get_buffer(texture);
+
+        draw_pixel(x, y, texture_buffer[(texture_width * texture_y) + texture_x]);
         // update z buffer
         update_zbuffer_at(x, y, interpolated_w);
     }
@@ -304,7 +310,7 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
     }
 }
 
-void draw_triangle(triangle_t *face, color_t color, uint32_t *texture) {
+void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
     // Flat-top && flat-bottom triangle rendering technique
     if (face->points[0].y > face->points[1].y) {
         float_swap(&face->points[0].y, &face->points[1].y);
@@ -408,7 +414,7 @@ float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
     return face_alignment;
 }
 
-void draw(triangle_t triangle, color_t color, uint32_t *texture) {
+void draw(triangle_t triangle, color_t color, upng_t *texture) {
     if (rendering_options.RENDER_FILL_TRIANGLE || rendering_options.RENDER_TEXTURED) {
         draw_triangle(&triangle, color, texture); 
     }

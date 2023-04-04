@@ -2,7 +2,7 @@
 
 tex2_t *uvs = NULL;
 
-void process_vertex(char* vertex) {
+void process_vertex(mesh_t *mesh, char* vertex) {
     char *end_str = strdup(vertex);
     char *token = strtok_r(NULL, " ", &end_str);
     // token is initialized this way to skip the first value on the string
@@ -16,7 +16,7 @@ void process_vertex(char* vertex) {
     token = strtok_r(end_str, " ", &end_str);
     new_vertex.z = atof(token);
 
-    array_push(mesh.vertices, new_vertex);
+    array_push(mesh->vertices, new_vertex);
 }
 
 void process_texture(char *line) {
@@ -32,7 +32,8 @@ void process_texture(char *line) {
     array_push(uvs, new_texture);
 }
 
-void process_normals(char *line) {
+void process_normals(mesh_t *mesh, char *line) {
+    /*
     char *end_str = strdup(line);
     char *token = strtok_r(NULL, " ", &end_str);
 
@@ -45,10 +46,11 @@ void process_normals(char *line) {
     token = strtok_r(end_str, " ", &end_str);
     new_normal.z = atof(token);
 
-    array_push(mesh.normals, new_normal);
+    array_push(mesh->normals, new_normal);
+    */
 }
 
-void process_face(char *face) {
+void process_face(mesh_t *mesh, char *face) {
     /*
         vi -> vertex indice
         ti -> texture indice
@@ -94,10 +96,10 @@ void process_face(char *face) {
     new_face.b_uv = uvs[data[1][1] - 1];
     new_face.c_uv = uvs[data[1][2] - 1];
 
-    array_push(mesh.faces, new_face);
+    array_push(mesh->faces, new_face);
 }
 
-void process_line(char* line) {
+void process_line(mesh_t *mesh, char* line) {
     char *end_str = strdup(line);
     char *token = strtok_r(end_str, " ", &end_str);
 
@@ -108,33 +110,35 @@ void process_line(char* line) {
     */
 
     if (!strcmp(token, "v")) {
-        process_vertex(line);
+        process_vertex(mesh, line);
     }
 
     if (!strcmp(token, "f")) {
-        process_face(line);
+        process_face(mesh, line);
     }
 
+    /*
     if (!strcmp(token, "n")) {
         process_normals(line);
     }
+    */
 
     if (!strcmp(token, "vt")) {
         process_texture(line);
     }
 }
 
-void load_obj_data(char* path) {
+void load_obj_data(mesh_t *mesh, char *filepath) {
     FILE *fp;
     char buff[255];
 
-    if((fp = fopen(path, "r")) == NULL) {
+    if((fp = fopen(filepath, "r")) == NULL) {
         fprintf(stderr, "Error opening file");
         return;
     }
 
     while (fgets(buff, 255, fp) != NULL) {
-        process_line(buff);
+        process_line(mesh, buff);
     }
 
     fclose(fp);
