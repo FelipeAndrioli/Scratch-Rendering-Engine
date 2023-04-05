@@ -241,11 +241,12 @@ void update(void) {
     //mesh->scale.y += 0.001;
 
     //mesh->translation.x += 0.6 * delta_time;
-    //mesh->translation.z = 5.0;
 
     for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++) {
 
         mesh_t *mesh = get_mesh(mesh_index);
+    
+        mesh->translation.z = 5.0;
 
         mat4_t scale_matrix = mat4_make_scale(&mesh->scale);
         mat4_t translation_matrix = mat4_make_translation(&mesh->translation);
@@ -375,7 +376,7 @@ void render(void) {
 
     for (int i = 0; i < num_triangles_to_render; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw(triangle, triangles_to_render[i].color, triangles_to_render[i].texture);
+        draw(triangle, triangles_to_render[i].color);
     }
 
     render_color_buffer();

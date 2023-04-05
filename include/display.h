@@ -42,7 +42,7 @@ void draw_filled_triangle(triangle_t triangle, color_t color);
 void draw_triangle(triangle_t *face, color_t color, upng_t *texture);
 
 float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position);
-void draw(triangle_t triangle, color_t color, upng_t *texture);
+void draw(triangle_t triangle, color_t color);
 
 void set_window_dim(int width, int height);
 int get_window_width(void);
