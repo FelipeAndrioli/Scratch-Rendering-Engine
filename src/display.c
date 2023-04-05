@@ -414,9 +414,9 @@ float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
     return face_alignment;
 }
 
-void draw(triangle_t triangle, color_t color) {
+void draw(triangle_t triangle) {
     if (rendering_options.RENDER_FILL_TRIANGLE || rendering_options.RENDER_TEXTURED) {
-        draw_triangle(&triangle, color, triangle.texture); 
+        draw_triangle(&triangle, triangle.color, triangle.texture); 
     }
     if (rendering_options.RENDER_VERTEX) {
         draw_rect(triangle.points[0].x - 3, triangle.points[0].y - 3, 6, 6, 0xFFFF0000);

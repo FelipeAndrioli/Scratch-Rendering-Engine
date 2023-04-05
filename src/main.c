@@ -376,7 +376,7 @@ void render(void) {
 
     for (int i = 0; i < num_triangles_to_render; i++) {
         triangle_t triangle = triangles_to_render[i];
-        draw(triangle, triangles_to_render[i].color);
+        draw(triangle);
     }
 
     render_color_buffer();
