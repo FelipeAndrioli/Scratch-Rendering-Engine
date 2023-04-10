@@ -141,5 +141,7 @@ void load_obj_data(mesh_t *mesh, char *filepath) {
         process_line(mesh, buff);
     }
 
+    uvs = NULL;
+
     fclose(fp);
 }
