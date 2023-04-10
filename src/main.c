@@ -88,6 +88,10 @@ void setup(void) {
     //load_model_mesh->data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
     //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
 
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj", 
+        "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png", 
+        vec3_new(1, 1, 1), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
+    
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.png",
         vec3_new(1, 1, 1), vec3_new(3, 0, 0), vec3_new(0, 0, 0));
@@ -95,7 +99,6 @@ void setup(void) {
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
-
 }
 
 void process_input(void) {
@@ -241,12 +244,17 @@ void update(void) {
     //mesh->scale.y += 0.001;
 
     //mesh->translation.x += 0.6 * delta_time;
+    update_camera();
+    view_matrix = mat4_look_at(get_camera_position(), get_camera_forward(),
+        get_camera_right(), get_camera_up());
 
     for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++) {
 
         mesh_t *mesh = get_mesh(mesh_index);
-    
+
         mesh->translation.z = 5.0;
+        mesh->rotation.x += 0.6 * delta_time + (mesh_index * 0.001);
+        mesh->rotation.y += 0.6 * delta_time + (mesh_index * 0.001);
 
         mat4_t scale_matrix = mat4_make_scale(&mesh->scale);
         mat4_t translation_matrix = mat4_make_translation(&mesh->translation);
@@ -261,10 +269,6 @@ void update(void) {
         world_matrix = mat4_mult_mat4(&rotation_matrix_y, &world_matrix);
         world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
         world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
-
-        update_camera();
-        view_matrix = mat4_look_at(get_camera_position(), get_camera_forward(),
-            get_camera_right(), get_camera_up());
 
         int n_faces = array_length(mesh->faces);
         for (int i = 0; i < n_faces; i++) {
@@ -354,7 +358,6 @@ void update(void) {
                     triangle_color,
                     mesh->texture
                 };
-
 
                 // save the projected triangle in an array of triangles to render
                 // this is going to turn very slow in the future, but'll be fixed soon
