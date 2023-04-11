@@ -35,4 +35,6 @@ typedef struct {
     upng_t *texture;
 } triangle_t;
 
+vec3_t calculate_triangle_normal(vec4_t vertices[3]); 
+
 #endif

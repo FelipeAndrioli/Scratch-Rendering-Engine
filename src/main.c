@@ -82,12 +82,6 @@ void setup(void) {
 
     vec3_normalize(get_light_direction_address());
 
-    // load specifically cube values
-    //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.png");
-    //load_model_mesh->data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj");
-    //load_model_mesh->data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj");
-    //load_png_texture_data("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png");
-
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png", 
         vec3_new(1, 1, 1), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
@@ -325,19 +319,9 @@ void update(void) {
                     projected_points[j].x += (get_window_width() / 2.0);
                     projected_points[j].y += (get_window_height() / 2.0);
                 }
+           
+                vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
 
-                vec3_t a = {transformed_vertices[0].x, transformed_vertices[0].y, transformed_vertices[0].z};
-                vec3_t b = {transformed_vertices[1].x, transformed_vertices[1].y, transformed_vertices[1].z};
-                vec3_t c = {transformed_vertices[2].x, transformed_vertices[2].y, transformed_vertices[2].z};
-                vec3_t ab = vec3_sub(&a, &b);
-                vec3_normalize(&ab);
-
-                vec3_t ac = vec3_sub(&a, &c);
-                vec3_normalize(&ac);
-
-                vec3_t face_normal = vec3_cross(&ab, &ac);
-                vec3_normalize(&face_normal);
-            
                 // Lighting
                 //float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
                 float light_intensity = -vec3_dot(get_light_direction_address(), &face_normal);
