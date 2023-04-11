@@ -81,8 +81,8 @@ void process_mouse_input(int *new_mouse_x, int *new_mouse_y, int *last_mouse_x,
     *last_mouse_y = *new_mouse_y;
 
     vec3_t *camera_rotation = get_camera_rotation();
-    camera_rotation->y += x_offset * 0.1 * delta_time;
-    camera_rotation->x += y_offset * 0.1 * delta_time;
+    camera_rotation->y += -x_offset * 0.1 * delta_time;
+    camera_rotation->x += -y_offset * 0.1 * delta_time;
     update_camera_rotation(*camera_rotation);
 }
 
