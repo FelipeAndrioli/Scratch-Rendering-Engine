@@ -210,6 +210,126 @@ void process_input(void) {
     }
 }
 
+/*
+    Rendering graphics pipeline
+
+    1 - Model Space -> original mesh vertices
+    2 - World Space -> multiply by world matrix
+    3 - Camera Space -> multiply by view matrix
+    4 - Clipping -> clip against the six frustum planes
+    5 - Projection -> multiply by projection matrix
+    6 - Image Space -> apply perspective divide
+    7 - Screen Space -> ready to render
+*/
+
+void rendering_pipeline(mesh_t *mesh) {
+    mesh->translation.z = 5.0;
+    mesh->rotation.x += 0.6 * delta_time;
+    mesh->rotation.y += 0.6 * delta_time;
+
+    mat4_t scale_matrix = mat4_make_scale(&mesh->scale);
+    mat4_t translation_matrix = mat4_make_translation(&mesh->translation);
+    mat4_t rotation_matrix_x = mat4_make_rotation_x(&mesh->rotation);
+    mat4_t rotation_matrix_y = mat4_make_rotation_y(&mesh->rotation);
+    mat4_t rotation_matrix_z = mat4_make_rotation_z(&mesh->rotation);
+
+    // World matrix to scale, rotate and translate
+    world_matrix = mat4_identity();
+    world_matrix = mat4_mult_mat4(&scale_matrix, &world_matrix);
+    world_matrix = mat4_mult_mat4(&rotation_matrix_x, &world_matrix);
+    world_matrix = mat4_mult_mat4(&rotation_matrix_y, &world_matrix);
+    world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
+    world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
+
+    int n_faces = array_length(mesh->faces);
+    for (int i = 0; i < n_faces; i++) {
+        face_t mesh_face = mesh->faces[i];
+
+        // build the set of three vectors from the triangle
+        vec3_t face_vertices[3];
+        // minus one because indices starts at 1
+        face_vertices[0] = mesh->vertices[mesh_face.a - 1];
+        face_vertices[1] = mesh->vertices[mesh_face.b - 1];
+        face_vertices[2] = mesh->vertices[mesh_face.c - 1];
+
+        vec4_t transformed_vertices[3];
+
+        // Model Transformations 
+        for (int j = 0; j < 3; j++) {
+            vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+            transformed_vertex = mat4_mult_vec4(&world_matrix, &transformed_vertex);
+            // View Transformations
+            transformed_vertex = mat4_mult_vec4(&view_matrix, &transformed_vertex);
+            transformed_vertices[j] = transformed_vertex;
+        }
+
+        // Clipping
+        polygon_t polygon = polygon_from_triangle(transformed_vertices, 
+            mesh_face.a_uv, mesh_face.b_uv, mesh_face.c_uv);
+
+        clip_polygon(&polygon);
+
+        triangle_t clipped_triangles[MAX_CLIPPED_TRIANGLES];
+        int n_clipped_triangles = 0;
+
+        triangles_from_polygon(&polygon, clipped_triangles, &n_clipped_triangles);
+
+        for (int t = 0; t < n_clipped_triangles; t++) {
+            triangle_t clipped_triangle = clipped_triangles[t];
+            // Projection Transformations
+            vec4_t projected_points[3];
+
+            for (int j = 0; j < 3; j++) {
+                //projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
+                //projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &transformed_vertices[j]);
+                projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &clipped_triangle.points[j]);
+
+                // scale the projected points into the view port
+                projected_points[j].x *= (get_window_width() / 2.0);
+                projected_points[j].y *= (get_window_height() / 2.0);
+                
+                // Invert y values, our y on z buffer is pointing down but the model
+                // y is pointing up, so the object is bein rendered upside down
+                projected_points[j].y *= -1;
+
+                // translate the projected points to the middle of the screen
+                projected_points[j].x += (get_window_width() / 2.0);
+                projected_points[j].y += (get_window_height() / 2.0);
+            }
+       
+            vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
+            
+            // Lighting
+            float light_intensity = -vec3_dot(get_light_direction_address(), &face_normal);
+            uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
+            // End lighting
+
+            triangle_t triangle_to_render = {
+                {
+                    {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+                    {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+                    {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
+                },
+                {
+                    {clipped_triangle.texcoords[0].u, clipped_triangle.texcoords[0].v},
+                    {clipped_triangle.texcoords[1].u, clipped_triangle.texcoords[1].v},
+                    {clipped_triangle.texcoords[2].u, clipped_triangle.texcoords[2].v}
+                },
+                triangle_color,
+                mesh->texture
+            };
+
+            // save the projected triangle in an array of triangles to render
+            // this is going to turn very slow in the future, but'll be fixed soon
+            vec3_t origin = {0, 0, 0};
+            if (culling(&face_normal, transformed_vertices, origin) >= 0 
+                && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
+                triangles_to_render[num_triangles_to_render++] = triangle_to_render;
+            }
+        }
+    }
+}
+
 void update(void) {
 
     // lock the execution until the execution reaches the desired FPS
@@ -243,115 +363,8 @@ void update(void) {
         get_camera_right(), get_camera_up());
 
     for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++) {
-
         mesh_t *mesh = get_mesh(mesh_index);
-
-        mesh->translation.z = 5.0;
-        mesh->rotation.x += 0.6 * delta_time + (mesh_index * 0.001);
-        mesh->rotation.y += 0.6 * delta_time + (mesh_index * 0.001);
-
-        mat4_t scale_matrix = mat4_make_scale(&mesh->scale);
-        mat4_t translation_matrix = mat4_make_translation(&mesh->translation);
-        mat4_t rotation_matrix_x = mat4_make_rotation_x(&mesh->rotation);
-        mat4_t rotation_matrix_y = mat4_make_rotation_y(&mesh->rotation);
-        mat4_t rotation_matrix_z = mat4_make_rotation_z(&mesh->rotation);
-
-        // World matrix to scale, rotate and translate
-        world_matrix = mat4_identity();
-        world_matrix = mat4_mult_mat4(&scale_matrix, &world_matrix);
-        world_matrix = mat4_mult_mat4(&rotation_matrix_x, &world_matrix);
-        world_matrix = mat4_mult_mat4(&rotation_matrix_y, &world_matrix);
-        world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
-        world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
-
-        int n_faces = array_length(mesh->faces);
-        for (int i = 0; i < n_faces; i++) {
-            face_t mesh_face = mesh->faces[i];
-
-            // build the set of three vectors from the triangle
-            vec3_t face_vertices[3];
-            // minus one because indices starts at 1
-            face_vertices[0] = mesh->vertices[mesh_face.a - 1];
-            face_vertices[1] = mesh->vertices[mesh_face.b - 1];
-            face_vertices[2] = mesh->vertices[mesh_face.c - 1];
-
-            vec4_t transformed_vertices[3];
-
-            // Model Transformations 
-            for (int j = 0; j < 3; j++) {
-                vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
-                transformed_vertex = mat4_mult_vec4(&world_matrix, &transformed_vertex);
-                // View Transformations
-                transformed_vertex = mat4_mult_vec4(&view_matrix, &transformed_vertex);
-                transformed_vertices[j] = transformed_vertex;
-            }
-
-            // Clipping
-            polygon_t polygon = polygon_from_triangle(transformed_vertices, 
-                mesh_face.a_uv, mesh_face.b_uv, mesh_face.c_uv);
-
-            clip_polygon(&polygon);
-
-            triangle_t clipped_triangles[MAX_CLIPPED_TRIANGLES];
-            int n_clipped_triangles = 0;
-
-            triangles_from_polygon(&polygon, clipped_triangles, &n_clipped_triangles);
-
-            for (int t = 0; t < n_clipped_triangles; t++) {
-                triangle_t clipped_triangle = clipped_triangles[t];
-                // Projection Transformations
-                vec4_t projected_points[3];
-
-                for (int j = 0; j < 3; j++) {
-                    //projected_points[j] = perspective_projection(vec3_from_vec4(transformed_vertices[j]));
-                    //projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &transformed_vertices[j]);
-                    projected_points[j] = mat4_mult_vec4_project(&proj_matrix, &clipped_triangle.points[j]);
-
-                    // scale the projected points into the view port
-                    projected_points[j].x *= (get_window_width() / 2.0);
-                    projected_points[j].y *= (get_window_height() / 2.0);
-                    
-                    // Invert y values, our y on z buffer is pointing down but the model
-                    // y is pointing up, so the object is bein rendered upside down
-                    projected_points[j].y *= -1;
-
-                    // translate the projected points to the middle of the screen
-                    projected_points[j].x += (get_window_width() / 2.0);
-                    projected_points[j].y += (get_window_height() / 2.0);
-                }
-           
-                vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
-
-                // Lighting
-                //float light_intensity = -vec3_dot(&global_light.direction, &face_normal);
-                float light_intensity = -vec3_dot(get_light_direction_address(), &face_normal);
-                uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
-                // End lighting
-
-                triangle_t triangle_to_render = {
-                    {
-                        {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
-                        {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
-                        {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}
-                    },
-                    {
-                        {clipped_triangle.texcoords[0].u, clipped_triangle.texcoords[0].v},
-                        {clipped_triangle.texcoords[1].u, clipped_triangle.texcoords[1].v},
-                        {clipped_triangle.texcoords[2].u, clipped_triangle.texcoords[2].v}
-                    },
-                    triangle_color,
-                    mesh->texture
-                };
-
-                // save the projected triangle in an array of triangles to render
-                // this is going to turn very slow in the future, but'll be fixed soon
-                vec3_t origin = {0, 0, 0};
-                if (culling(&face_normal, transformed_vertices, origin) >= 0 
-                    && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
-                    triangles_to_render[num_triangles_to_render++] = triangle_to_render;
-                }
-            }
-        }
+        rendering_pipeline(mesh);
     }
 }
 
