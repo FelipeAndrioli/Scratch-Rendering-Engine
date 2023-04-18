@@ -347,17 +347,8 @@ void update(void) {
     previous_frame_time = SDL_GetTicks();
 
     // Initialize the array
-    //triangles_to_render = NULL;
     num_triangles_to_render = 0;
 
-    //mesh->rotation.x += 0.6 * delta_time;
-    //mesh->rotation.y += 0.01;
-    //mesh->rotation.z += 0.01;
-
-    //mesh->scale.x += 0.002;
-    //mesh->scale.y += 0.001;
-
-    //mesh->translation.x += 0.6 * delta_time;
     update_camera();
     view_matrix = mat4_look_at(get_camera_position(), get_camera_forward(),
         get_camera_right(), get_camera_up());
