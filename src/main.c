@@ -82,23 +82,14 @@ void setup(void) {
 
     vec3_normalize(get_light_direction_address());
 
-    /*
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png", 
         vec3_new(1, 1, 1), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
-
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.obj", 
-        NULL,
-        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.png",
+        "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.png",
         vec3_new(1, 1, 1), vec3_new(3, 0, 0), vec3_new(0, 0, 0));
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
-        vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
-    */
-    
-    load_mesh("C:/Users/Felipe/Documents/current_projects/models/actual_models/medieval-chest/chest.obj", 
-        NULL,
-        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
 }
 
@@ -306,11 +297,6 @@ void rendering_pipeline(mesh_t *mesh) {
        
             vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
             
-            // Lighting
-            float light_intensity = -vec3_dot(get_light_direction_address(), &face_normal);
-            uint32_t triangle_color = light_apply_intensity(0xFFFF0000, light_intensity);
-            // End lighting
-
             triangle_t triangle_to_render = {
                 {
                     {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
@@ -322,8 +308,9 @@ void rendering_pipeline(mesh_t *mesh) {
                     {clipped_triangle.texcoords[1].u, clipped_triangle.texcoords[1].v},
                     {clipped_triangle.texcoords[2].u, clipped_triangle.texcoords[2].v}
                 },
-                triangle_color,
-                mesh->texture
+                0xFF00FF00,
+                mesh->texture,
+                face_normal
             };
 
             // save the projected triangle in an array of triangles to render

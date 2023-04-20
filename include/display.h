@@ -7,6 +7,7 @@
 #include "../include/triangle.h"
 #include "../include/matrix.h"
 #include "../include/utils.h"
+#include "../include/light.h"
 #include "../libs/dynamic_array/array.h"
 
 #define FPS 60 
@@ -57,5 +58,7 @@ void change_render_fill_triangle(void);
 void change_render_vertex(void);
 void change_render_wireframe(void);
 void change_render_textured(void);
+
+void pixel_shader(triangle_t *face, color_t* pixel_color);
 
 #endif

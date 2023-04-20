@@ -205,8 +205,10 @@ void draw_texel(int x, int y, triangle_t *face, upng_t *texture) {
     if (get_zbuffer_at(x, y) > interpolated_w) {
 
         uint32_t *texture_buffer = (uint32_t*)upng_get_buffer(texture);
+        color_t color = texture_buffer[(texture_width * texture_y) + texture_x]; 
 
-        draw_pixel(x, y, texture_buffer[(texture_width * texture_y) + texture_x]);
+        pixel_shader(face, &color);
+        draw_pixel(x, y, color);
         // update z buffer
         update_zbuffer_at(x, y, interpolated_w);
     }
@@ -230,6 +232,7 @@ void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
     interpolated_w = 1.0 - interpolated_w;
 
     if (get_zbuffer_at(x, y) > interpolated_w) {
+        pixel_shader(face, &color);
         draw_pixel(x, y, color);
         update_zbuffer_at(x, y, interpolated_w);
     }
@@ -483,4 +486,10 @@ void change_render_wireframe(void) {
 
 void change_render_textured(void) {
     rendering_options.RENDER_TEXTURED = !rendering_options.RENDER_TEXTURED;
+}
+
+// temporary
+void pixel_shader(triangle_t *face, color_t* pixel_color) {
+    float light_intensity = -vec3_dot(get_light_direction_address(), &face->face_normal); 
+    *pixel_color = light_apply_intensity(*pixel_color, light_intensity);
 }
