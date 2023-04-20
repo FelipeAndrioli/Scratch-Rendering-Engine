@@ -5,7 +5,6 @@
 - The make installed by chocolatey was causing problems, then I switch to mingw32-make.exe
 
 ## Next Implementations
-- Lighting for Texture
 - Gouraud Shading
 	- Untextured 
 	- Texture
