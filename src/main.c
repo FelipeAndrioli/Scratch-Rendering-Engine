@@ -82,16 +82,23 @@ void setup(void) {
 
     vec3_normalize(get_light_direction_address());
 
+    /*
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png", 
         vec3_new(1, 1, 1), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
-    
-    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.obj", 
-        "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.png",
-        vec3_new(1, 1, 1), vec3_new(3, 0, 0), vec3_new(0, 0, 0));
 
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.obj", 
+        NULL,
+        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/efa/efa.png",
+        vec3_new(1, 1, 1), vec3_new(3, 0, 0), vec3_new(0, 0, 0));
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
+        vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
+    */
+    
+    load_mesh("C:/Users/Felipe/Documents/current_projects/models/actual_models/medieval-chest/chest.obj", 
+        NULL,
+        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
 }
 

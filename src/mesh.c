@@ -5,7 +5,7 @@ static int mesh_count = 0;
 
 void free_meshes(void) {
     for (int i = 0; i < mesh_count; i++) {
-        upng_free(meshes[i].texture);
+        if (meshes[i].texture != NULL) upng_free(meshes[i].texture);
         array_free(meshes[i].faces);
         array_free(meshes[i].vertices);
     }
@@ -30,10 +30,13 @@ void load_mesh(char *obj_filepath, char *texture_filepath, vec3_t scale,
     vec3_t translation, vec3_t rotation) {
 
     load_model_mesh_data(&meshes[mesh_count], obj_filepath);
-    load_png_texture_data(&meshes[mesh_count], texture_filepath);
     meshes[mesh_count].scale = scale;
     meshes[mesh_count].translation = translation;
     meshes[mesh_count].rotation = rotation;
+
+    if (texture_filepath != NULL) {
+        load_png_texture_data(&meshes[mesh_count], texture_filepath);
+    }
 
     mesh_count++;
 }

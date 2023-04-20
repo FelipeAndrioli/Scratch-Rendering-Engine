@@ -366,7 +366,7 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
             for (int x = x_start; x <= x_end; x++) {
-                if (rendering_options.RENDER_TEXTURED) {
+                if (rendering_options.RENDER_TEXTURED && texture != NULL) {
                     draw_texel(x, y, face, texture);
                 }
                 if (rendering_options.RENDER_FILL_TRIANGLE) {
@@ -390,7 +390,7 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
             if (x_start > x_end) int_swap(&x_start, &x_end);
 
             for (int x = x_start; x <= x_end; x++) {
-                if (rendering_options.RENDER_TEXTURED) {
+                if (rendering_options.RENDER_TEXTURED && texture != NULL) {
                     draw_texel(x, y, face, texture);
                 }
                 if (rendering_options.RENDER_FILL_TRIANGLE) {
