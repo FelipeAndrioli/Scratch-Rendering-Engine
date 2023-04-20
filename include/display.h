@@ -59,6 +59,6 @@ void change_render_vertex(void);
 void change_render_wireframe(void);
 void change_render_textured(void);
 
-void pixel_shader(triangle_t *face, color_t* pixel_color);
+void apply_lighting(triangle_t *face, color_t* pixel_color);
 
 #endif
