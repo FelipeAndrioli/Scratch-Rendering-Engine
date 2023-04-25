@@ -207,7 +207,7 @@ void draw_texel(int x, int y, triangle_t *face, upng_t *texture) {
         uint32_t *texture_buffer = (uint32_t*)upng_get_buffer(texture);
         color_t color = texture_buffer[(texture_width * texture_y) + texture_x]; 
 
-        apply_lighting(face, &color);
+        flat_shading(face, &color);
         draw_pixel(x, y, color);
         // update z buffer
         update_zbuffer_at(x, y, interpolated_w);
@@ -232,7 +232,8 @@ void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
     interpolated_w = 1.0 - interpolated_w;
 
     if (get_zbuffer_at(x, y) > interpolated_w) {
-        apply_lighting(face, &color);
+        //flat_shading(face, &color);
+        //gouraud_shading(face, &color);
         draw_pixel(x, y, color);
         update_zbuffer_at(x, y, interpolated_w);
     }
@@ -357,6 +358,9 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
 
     float inv_slope_left = 0;
     float inv_slope_right = 0;
+
+    flat_shading(face, &color);
+    //gouraud_shading(face, &color);
 
     if (y1 - y0 != 0) inv_slope_left = (float)(x1 - x0) / abs(y1 - y0);
     if (y2 - y0 != 0) inv_slope_right = (float)(x2 - x0) / abs(y2 - y0);
@@ -489,7 +493,53 @@ void change_render_textured(void) {
 }
 
 // temporary
-void apply_lighting(triangle_t *face, color_t* pixel_color) {
+void flat_shading(triangle_t *face, color_t* pixel_color) {
     float light_intensity = -vec3_dot(get_light_direction_address(), &face->face_normal); 
     *pixel_color = light_apply_intensity(*pixel_color, light_intensity);
 }
+
+void gouraud_shading(triangle_t *face, color_t *pixel_color) {
+    vec3_t a = vec3_from_vec4(face->points[0]);
+    vec3_t b = vec3_from_vec4(face->points[1]);
+    vec3_t c = vec3_from_vec4(face->points[2]);
+    vec3_t normal_a;
+    vec3_t normal_b;
+    vec3_t normal_c;
+    float light_intensity_a = 0.0f;
+    float light_intensity_b = 0.0f;
+    float light_intensity_c = 0.0f;
+
+    vec3_normalize(&a);
+    vec3_normalize(&b);
+    vec3_normalize(&c);
+
+    b = vec3_sub(&b, &a);
+    c = vec3_sub(&c, &a);
+
+    normal_a = vec3_cross(&b, &c);
+
+    a = vec3_from_vec4(face->points[0]);
+    b = vec3_from_vec4(face->points[1]);
+    c = vec3_from_vec4(face->points[2]);
+    
+    a = vec3_sub(&a, &b);
+    c = vec3_sub(&c, &b);
+
+    normal_b = vec3_cross(&a, &c);
+
+    a = vec3_from_vec4(face->points[0]);
+    b = vec3_from_vec4(face->points[1]);
+    c = vec3_from_vec4(face->points[2]);
+    
+    a = vec3_sub(&a, &c); 
+    b = vec3_sub(&a, &c); 
+
+    normal_c = vec3_cross(&a, &b);
+
+    light_intensity_a = -vec3_dot(get_light_direction_address(), &normal_a);
+    light_intensity_b = -vec3_dot(get_light_direction_address(), &normal_b);
+    light_intensity_c = -vec3_dot(get_light_direction_address(), &normal_c);
+
+}
+
+

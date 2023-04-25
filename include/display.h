@@ -59,6 +59,7 @@ void change_render_vertex(void);
 void change_render_wireframe(void);
 void change_render_textured(void);
 
-void apply_lighting(triangle_t *face, color_t* pixel_color);
+void flat_shading(triangle_t *face, color_t* pixel_color);
+void gouraud_shading(triangle_t *face, color_t* pixel_color);
 
 #endif
