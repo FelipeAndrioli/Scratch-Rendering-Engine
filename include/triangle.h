@@ -33,9 +33,10 @@ typedef struct {
     tex2_t texcoords[3];
     color_t color;
     upng_t *texture;
-    vec3_t face_normal;
+    vec3_t face_normals[3];
 } triangle_t;
 
 vec3_t calculate_triangle_normal(vec4_t vertices[3]); 
+vec3_t calculate_face_normal(vec4_t va, vec4_t vb, vec4_t vc); 
 
 #endif
