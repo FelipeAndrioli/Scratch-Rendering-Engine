@@ -92,22 +92,18 @@ void setup(void) {
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
-    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
-        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
-        NULL,
-        vec3_new(0.5, 0.5, 0.5), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
     */
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
-        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
+        NULL,
+        vec3_new(0.5, 0.5, 0.5), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
         NULL,
         vec3_new(0.5, 0.5, 0.5), vec3_new(3, 0, 0), vec3_new(0, 0, 0));
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj", 
-        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         NULL,
-        vec3_new(0.5, 0.5, 0.5), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
+        vec3_new(0.5, 0.5, 0.5), vec3_new(0, 0, 0), vec3_new(0, 0, 0));
     /*
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
-        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         NULL,
         vec3_new(0.5, 0.5, 0.5), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
     */
@@ -339,6 +335,13 @@ void rendering_pipeline(mesh_t *mesh) {
                 },
                 0xFF00FF00,
                 mesh->texture,
+                /*
+                {
+                    {mesh_face.na.x, mesh_face.na.y, mesh_face.na.z},
+                    {mesh_face.nb.x, mesh_face.nb.y, mesh_face.nb.z},
+                    {mesh_face.nc.x, mesh_face.nc.y, mesh_face.nc.z}
+                }
+                */
                 {
                     {face_normals[0].x, face_normals[0].y, face_normals[0].z},
                     {face_normals[1].x, face_normals[1].y, face_normals[1].z},

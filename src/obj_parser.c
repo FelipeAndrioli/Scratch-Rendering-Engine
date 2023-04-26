@@ -1,6 +1,7 @@
 #include "../include/obj_parser.h"
 
 tex2_t *uvs = NULL;
+vec3_t *normals = NULL;
 
 void process_vertex(mesh_t *mesh, char* vertex) {
     char *end_str = strdup(vertex);
@@ -32,8 +33,7 @@ void process_texture(char *line) {
     array_push(uvs, new_texture);
 }
 
-void process_normals(mesh_t *mesh, char *line) {
-    /*
+void process_normals(char *line) {
     char *end_str = strdup(line);
     char *token = strtok_r(NULL, " ", &end_str);
 
@@ -46,8 +46,7 @@ void process_normals(mesh_t *mesh, char *line) {
     token = strtok_r(end_str, " ", &end_str);
     new_normal.z = atof(token);
 
-    array_push(mesh->normals, new_normal);
-    */
+    array_push(normals, new_normal);
 }
 
 void process_face(mesh_t *mesh, char *face) {
@@ -86,11 +85,9 @@ void process_face(mesh_t *mesh, char *face) {
     new_face.b = data[0][1];
     new_face.c = data[0][2];
 
-    /*
-    new_face.na = data[2][0];
-    new_face.nb = data[2][1];
-    new_face.nc = data[2][2];
-    */
+    new_face.na = normals[data[2][0] - 1];
+    new_face.nb = normals[data[2][1] - 1];
+    new_face.nc = normals[data[2][2] - 1];
 
     new_face.a_uv = uvs[data[1][0] - 1];
     new_face.b_uv = uvs[data[1][1] - 1];
@@ -117,11 +114,9 @@ void process_line(mesh_t *mesh, char* line) {
         process_face(mesh, line);
     }
 
-    /*
-    if (!strcmp(token, "n")) {
+    if (!strcmp(token, "vn")) {
         process_normals(line);
     }
-    */
 
     if (!strcmp(token, "vt")) {
         process_texture(line);
@@ -142,6 +137,7 @@ void load_obj_data(mesh_t *mesh, char *filepath) {
     }
 
     uvs = NULL;
+    normals = NULL;
 
     fclose(fp);
 }

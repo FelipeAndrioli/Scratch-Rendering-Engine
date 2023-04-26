@@ -15,11 +15,10 @@ typedef struct {
     int a;
     int b;
     int c;
-    /*
-    int na;
-    int nb;
-    int nc;
-    */
+
+    vec3_t na;
+    vec3_t nb;
+    vec3_t nc;
 
     tex2_t a_uv;
     tex2_t b_uv;
