@@ -207,7 +207,8 @@ void draw_texel(int x, int y, triangle_t *face, upng_t *texture) {
         uint32_t *texture_buffer = (uint32_t*)upng_get_buffer(texture);
         color_t color = texture_buffer[(texture_width * texture_y) + texture_x]; 
 
-        flat_shading(face, &color);
+        //flat_shading(face, &color);
+        gouraud_shading(face, &color, alpha, beta, gamma);
         draw_pixel(x, y, color);
         // update z buffer
         update_zbuffer_at(x, y, interpolated_w);
@@ -232,7 +233,6 @@ void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
     interpolated_w = 1.0 - interpolated_w;
 
     if (get_zbuffer_at(x, y) > interpolated_w) {
-        //flat_shading(face, &color);
         gouraud_shading(face, &color, alpha, beta, gamma);
         draw_pixel(x, y, color);
         update_zbuffer_at(x, y, interpolated_w);
@@ -360,7 +360,6 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
     float inv_slope_right = 0;
 
     //flat_shading(face, &color);
-    //gouraud_shading(face, &color);
 
     if (y1 - y0 != 0) inv_slope_left = (float)(x1 - x0) / abs(y1 - y0);
     if (y2 - y0 != 0) inv_slope_right = (float)(x2 - x0) / abs(y2 - y0);
@@ -500,30 +499,6 @@ void flat_shading(triangle_t *face, color_t* pixel_color) {
 
 void gouraud_shading(triangle_t *face, color_t *pixel_color, float alpha, 
     float beta, float gamma) {
-
-    /*
-    vec3_t a = vec3_from_vec4(face->points[0]);
-    vec3_t b = vec3_from_vec4(face->points[1]);
-    vec3_t c = vec3_from_vec4(face->points[2]);
-
-    vec3_t ab = vec3_sub(&a, &b);
-    vec3_t ba = vec3_sub(&b, &a);
-    vec3_t ac = vec3_sub(&a, &c);
-    vec3_t ca = vec3_sub(&c, &a);
-    vec3_t bc = vec3_sub(&b, &c);
-    vec3_t cb = vec3_sub(&c, &b);
-
-    vec3_normalize(&ab);
-    vec3_normalize(&ba);
-    vec3_normalize(&ac);
-    vec3_normalize(&ca);
-    vec3_normalize(&bc);
-    vec3_normalize(&cb);
-
-    vec3_t normal_a = vec3_cross(&ab, &ac);
-    vec3_t normal_b = vec3_cross(&bc, &ba);
-    vec3_t normal_c = vec3_cross(&ca, &cb);
-    */
 
     float light_intensity_a = -vec3_dot(get_light_direction_address(), &face->face_normals[0]);
     float light_intensity_b = -vec3_dot(get_light_direction_address(), &face->face_normals[1]);
