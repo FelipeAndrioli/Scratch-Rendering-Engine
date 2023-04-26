@@ -60,6 +60,6 @@ void change_render_wireframe(void);
 void change_render_textured(void);
 
 void flat_shading(triangle_t *face, color_t* pixel_color);
-void gouraud_shading(triangle_t *face, color_t* pixel_color);
+void gouraud_shading(triangle_t *face, color_t* pixel_color, float alpha, float beta, float gamma);
 
 #endif
