@@ -82,6 +82,7 @@ void setup(void) {
 
     vec3_normalize(get_light_direction_address());
 
+    /*
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f117/f117.png", 
         vec3_new(1, 1, 1), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
@@ -91,6 +92,25 @@ void setup(void) {
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.obj", 
         "C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
         vec3_new(1, 1, 1), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
+        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
+        NULL,
+        vec3_new(0.5, 0.5, 0.5), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
+    */
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
+        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
+        NULL,
+        vec3_new(0.5, 0.5, 0.5), vec3_new(3, 0, 0), vec3_new(0, 0, 0));
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj", 
+        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
+        NULL,
+        vec3_new(0.5, 0.5, 0.5), vec3_new(-3, 0, 0), vec3_new(0, 0, 0));
+    /*
+    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
+        //"C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/f22/f22.png", 
+        NULL,
+        vec3_new(0.5, 0.5, 0.5), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
+    */
 }
 
 void process_input(void) {
@@ -222,8 +242,8 @@ void process_input(void) {
 
 void rendering_pipeline(mesh_t *mesh) {
     mesh->translation.z = 5.0;
-    mesh->rotation.x += 0.6 * delta_time;
-    mesh->rotation.y += 0.6 * delta_time;
+    mesh->rotation.x += 0.1 * delta_time;
+    mesh->rotation.y += 0.1 * delta_time;
 
     mat4_t scale_matrix = mat4_make_scale(&mesh->scale);
     mat4_t translation_matrix = mat4_make_translation(&mesh->translation);
@@ -294,8 +314,17 @@ void rendering_pipeline(mesh_t *mesh) {
                 projected_points[j].x += (get_window_width() / 2.0);
                 projected_points[j].y += (get_window_height() / 2.0);
             }
-       
-            vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
+      
+            // TODO calculate the two remaining normals here
+            //vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
+           
+            vec3_t face_normals[3];
+            face_normals[0] = calculate_face_normal(transformed_vertices[0],
+                transformed_vertices[1], transformed_vertices[2]);
+            face_normals[1] = calculate_face_normal(transformed_vertices[2],
+                transformed_vertices[0], transformed_vertices[1]);
+            face_normals[2] = calculate_face_normal(transformed_vertices[1],
+                transformed_vertices[2], transformed_vertices[0]);
             
             triangle_t triangle_to_render = {
                 {
@@ -310,13 +339,18 @@ void rendering_pipeline(mesh_t *mesh) {
                 },
                 0xFF00FF00,
                 mesh->texture,
-                face_normal
+                {
+                    {face_normals[0].x, face_normals[0].y, face_normals[0].z},
+                    {face_normals[1].x, face_normals[1].y, face_normals[1].z},
+                    {face_normals[2].x, face_normals[2].y, face_normals[2].z}
+                }
+                //face_normal
             };
 
             // save the projected triangle in an array of triangles to render
             // this is going to turn very slow in the future, but'll be fixed soon
             vec3_t origin = {0, 0, 0};
-            if (culling(&face_normal, transformed_vertices, origin) >= 0 
+            if (culling(&face_normals[0], transformed_vertices, origin) >= 0 
                 && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
                 triangles_to_render[num_triangles_to_render++] = triangle_to_render;
             }
