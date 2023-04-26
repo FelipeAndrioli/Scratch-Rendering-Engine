@@ -494,13 +494,14 @@ void change_render_textured(void) {
 
 // temporary
 void flat_shading(triangle_t *face, color_t* pixel_color) {
-    float light_intensity = -vec3_dot(get_light_direction_address(), &face->face_normal); 
+    float light_intensity = -vec3_dot(get_light_direction_address(), &face->face_normals[0]); 
     *pixel_color = light_apply_intensity(*pixel_color, light_intensity);
 }
 
 void gouraud_shading(triangle_t *face, color_t *pixel_color, float alpha, 
     float beta, float gamma) {
 
+    /*
     vec3_t a = vec3_from_vec4(face->points[0]);
     vec3_t b = vec3_from_vec4(face->points[1]);
     vec3_t c = vec3_from_vec4(face->points[2]);
@@ -519,26 +520,17 @@ void gouraud_shading(triangle_t *face, color_t *pixel_color, float alpha,
     vec3_normalize(&bc);
     vec3_normalize(&cb);
 
-    vec3_t normal_a = vec3_cross(&ba, &ca);
-    vec3_t normal_b = vec3_cross(&ab, &cb);
-    vec3_t normal_c = vec3_cross(&ac, &bc);
+    vec3_t normal_a = vec3_cross(&ab, &ac);
+    vec3_t normal_b = vec3_cross(&bc, &ba);
+    vec3_t normal_c = vec3_cross(&ca, &cb);
+    */
 
-    vec3_normalize(&normal_a);
-    vec3_normalize(&normal_b);
-    vec3_normalize(&normal_c);
-
-    float light_intensity_a = 0.0f;
-    float light_intensity_b = 0.0f;
-    float light_intensity_c = 0.0f;
-
-    light_intensity_a = -vec3_dot(get_light_direction_address(), &normal_a);
-    light_intensity_b = -vec3_dot(get_light_direction_address(), &normal_b);
-    light_intensity_c = -vec3_dot(get_light_direction_address(), &normal_c);
+    float light_intensity_a = -vec3_dot(get_light_direction_address(), &face->face_normals[0]);
+    float light_intensity_b = -vec3_dot(get_light_direction_address(), &face->face_normals[1]);
+    float light_intensity_c = -vec3_dot(get_light_direction_address(), &face->face_normals[2]);
 
     float interpolated_intensity = (alpha * light_intensity_a) 
         + (beta * light_intensity_b) + (gamma * light_intensity_c);
-
-    //interpolated_intensity = 1.0 - interpolated_intensity;
 
     *pixel_color = light_apply_intensity(*pixel_color, interpolated_intensity);
 }
