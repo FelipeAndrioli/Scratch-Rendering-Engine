@@ -20,4 +20,7 @@ mat4_t mat4_mult_mat4(mat4_t *a, mat4_t *b);
 mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar);
 vec4_t mat4_mult_vec4_project(mat4_t *mat_proj, vec4_t *v);
 
+mat4_t mat4_transpose(mat4_t *m);
+mat4_t mat4_inverse(mat4_t *m);
+
 #endif
