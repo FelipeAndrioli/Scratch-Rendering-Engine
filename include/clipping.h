@@ -3,6 +3,7 @@
 
 #include "./vector.h"
 #include "./triangle.h"
+#include "./log.h"
 
 #define NUM_PLANES 6
 #define MAX_POLYGON_VERTICES 10
@@ -24,6 +25,7 @@ typedef struct {
 
 typedef struct {
     vec3_t vertices[MAX_POLYGON_VERTICES];
+    vec3_t normals[MAX_POLYGON_VERTICES];
     tex2_t texcoords[MAX_POLYGON_VERTICES];
     int num_vertices;
 } polygon_t;
@@ -33,6 +35,6 @@ float float_lerp(float a, float b, float t);
 void clip(polygon_t *polygon, int plane);
 void clip_polygon(polygon_t *polygon);
 void triangles_from_polygon(polygon_t *polygon, triangle_t triangles[], int *n_clipped_triangles);
-polygon_t polygon_from_triangle(vec4_t *triangle, tex2_t t0, tex2_t t1, tex2_t t2);
+polygon_t polygon_from_triangle(vec4_t *triangle, vec4_t *normals, tex2_t t0, tex2_t t1, tex2_t t2);
 
 #endif

@@ -208,7 +208,7 @@ void draw_texel(int x, int y, triangle_t *face, upng_t *texture) {
         color_t color = texture_buffer[(texture_width * texture_y) + texture_x]; 
 
         //flat_shading(face, &color);
-        gouraud_shading(face, &color, alpha, beta, gamma);
+        //gouraud_shading(face, &color, alpha, beta, gamma);
         draw_pixel(x, y, color);
         // update z buffer
         update_zbuffer_at(x, y, interpolated_w);
@@ -235,7 +235,7 @@ void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
     if (get_zbuffer_at(x, y) > interpolated_w) {
         gouraud_shading(face, &color, alpha, beta, gamma);
         draw_pixel(x, y, color);
-        update_zbuffer_at(x, y, interpolated_w);
+        //update_zbuffer_at(x, y, interpolated_w);
     }
 }
 
@@ -321,15 +321,23 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
         float_swap(&face->points[0].x, &face->points[1].x);
         float_swap(&face->points[0].z, &face->points[1].z);
         float_swap(&face->points[0].w, &face->points[1].w);
-    
+   
+        float_swap(&face->face_normals[0].y, &face->face_normals[1].y);
+        float_swap(&face->face_normals[0].x, &face->face_normals[1].x);
+        float_swap(&face->face_normals[0].z, &face->face_normals[1].z);
+
         float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
         float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
     }
     if (face->points[1].y > face->points[2].y) {
         float_swap(&face->points[1].y, &face->points[2].y);
         float_swap(&face->points[1].x, &face->points[2].x);
-        float_swap(&face->points[1].z, &face->points[1].z);
+        float_swap(&face->points[1].z, &face->points[2].z);
         float_swap(&face->points[1].w, &face->points[2].w);
+        
+        float_swap(&face->face_normals[1].y, &face->face_normals[2].y);
+        float_swap(&face->face_normals[1].x, &face->face_normals[2].x);
+        float_swap(&face->face_normals[1].z, &face->face_normals[2].z);
         
         float_swap(&face->texcoords[1].u, &face->texcoords[2].u);
         float_swap(&face->texcoords[1].v, &face->texcoords[2].v);
@@ -339,6 +347,10 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
         float_swap(&face->points[0].x, &face->points[1].x);
         float_swap(&face->points[0].z, &face->points[1].z);
         float_swap(&face->points[0].w, &face->points[1].w);
+        
+        float_swap(&face->face_normals[0].y, &face->face_normals[1].y);
+        float_swap(&face->face_normals[0].x, &face->face_normals[1].x);
+        float_swap(&face->face_normals[0].z, &face->face_normals[1].z);
         
         float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
         float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
@@ -493,16 +505,22 @@ void change_render_textured(void) {
 
 // temporary
 void flat_shading(triangle_t *face, color_t* pixel_color) {
-    float light_intensity = -vec3_dot(get_light_direction_address(), &face->face_normals[0]); 
+    vec3_t face_normal = vec3_from_vec4(face->face_normals[0]);
+    float light_intensity = -vec3_dot(get_light_direction_address(), &face_normal); 
+    //printf("light intensity - %f\n", light_intensity);
     *pixel_color = light_apply_intensity(*pixel_color, light_intensity);
 }
 
 void gouraud_shading(triangle_t *face, color_t *pixel_color, float alpha, 
     float beta, float gamma) {
 
-    float light_intensity_a = -vec3_dot(get_light_direction_address(), &face->face_normals[0]);
-    float light_intensity_b = -vec3_dot(get_light_direction_address(), &face->face_normals[1]);
-    float light_intensity_c = -vec3_dot(get_light_direction_address(), &face->face_normals[2]);
+    vec3_t face_normal_a = vec3_from_vec4(face->face_normals[0]);
+    vec3_t face_normal_b = vec3_from_vec4(face->face_normals[1]);
+    vec3_t face_normal_c = vec3_from_vec4(face->face_normals[2]);
+
+    float light_intensity_a = -vec3_dot(get_light_direction_address(), &face_normal_a);
+    float light_intensity_b = -vec3_dot(get_light_direction_address(), &face_normal_b);
+    float light_intensity_c = -vec3_dot(get_light_direction_address(), &face_normal_c);
 
     float interpolated_intensity = (alpha * light_intensity_a) 
         + (beta * light_intensity_b) + (gamma * light_intensity_c);

@@ -32,7 +32,7 @@ typedef struct {
     tex2_t texcoords[3];
     color_t color;
     upng_t *texture;
-    vec3_t face_normals[3];
+    vec4_t face_normals[3];
 } triangle_t;
 
 vec3_t calculate_triangle_normal(vec4_t vertices[3]); 

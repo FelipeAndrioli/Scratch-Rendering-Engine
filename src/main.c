@@ -17,6 +17,7 @@
 #include "../include/texture.h"
 #include "../include/camera.h"
 #include "../include/clipping.h"
+#include "../include/log.h"
 
 /*
     TODOs for the whole code
@@ -102,11 +103,6 @@ void setup(void) {
     load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/cube/cube.obj", 
         NULL,
         vec3_new(0.5, 0.5, 0.5), vec3_new(0, 0, 0), vec3_new(0, 0, 0));
-    /*
-    load_mesh("C:/Users/Felipe/Documents/current_projects/Scratch-Rendering-Engine/assets/models/sphere/sphere.obj", 
-        NULL,
-        vec3_new(0.5, 0.5, 0.5), vec3_new(9, 0, 0), vec3_new(0, 0, 0));
-    */
 }
 
 void process_input(void) {
@@ -255,6 +251,9 @@ void rendering_pipeline(mesh_t *mesh) {
     world_matrix = mat4_mult_mat4(&rotation_matrix_z, &world_matrix);
     world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
 
+    mat4_t normal_matrix = mat4_inverse(&world_matrix);
+    normal_matrix = mat4_transpose(&normal_matrix);
+
     int n_faces = array_length(mesh->faces);
     for (int i = 0; i < n_faces; i++) {
         face_t mesh_face = mesh->faces[i];
@@ -266,7 +265,13 @@ void rendering_pipeline(mesh_t *mesh) {
         face_vertices[1] = mesh->vertices[mesh_face.b - 1];
         face_vertices[2] = mesh->vertices[mesh_face.c - 1];
 
+        vec3_t raw_face_normals[3];
+        raw_face_normals[0] = mesh_face.na;
+        raw_face_normals[1] = mesh_face.nb;
+        raw_face_normals[2] = mesh_face.nc;
+
         vec4_t transformed_vertices[3];
+        vec4_t transformed_normals[3];
 
         // Model Transformations 
         for (int j = 0; j < 3; j++) {
@@ -275,11 +280,17 @@ void rendering_pipeline(mesh_t *mesh) {
             // View Transformations
             transformed_vertex = mat4_mult_vec4(&view_matrix, &transformed_vertex);
             transformed_vertices[j] = transformed_vertex;
+
+            vec4_t transformed_normal = vec4_from_vec3(raw_face_normals[j]);
+            transformed_normal.w = 0.0;
+            transformed_normal = mat4_mult_vec4(&normal_matrix, &transformed_normal);
+            //transformed_normal = mat4_mult_vec4(&view_matrix, &transformed_normal);
+            transformed_normals[j] = transformed_normal;
         }
 
         // Clipping
         polygon_t polygon = polygon_from_triangle(transformed_vertices, 
-            mesh_face.a_uv, mesh_face.b_uv, mesh_face.c_uv);
+            transformed_normals, mesh_face.a_uv, mesh_face.b_uv, mesh_face.c_uv);
 
         clip_polygon(&polygon);
 
@@ -309,11 +320,17 @@ void rendering_pipeline(mesh_t *mesh) {
                 // translate the projected points to the middle of the screen
                 projected_points[j].x += (get_window_width() / 2.0);
                 projected_points[j].y += (get_window_height() / 2.0);
-            }
-      
-            // TODO calculate the two remaining normals here
-            //vec3_t face_normal = calculate_triangle_normal(transformed_vertices);
-           
+           }
+
+            vec3_t final_normals[3];
+            final_normals[0] = vec3_from_vec4(clipped_triangle.face_normals[0]);
+            final_normals[1] = vec3_from_vec4(clipped_triangle.face_normals[1]);
+            final_normals[2] = vec3_from_vec4(clipped_triangle.face_normals[2]);
+
+            vec3_normalize(&final_normals[0]);
+            vec3_normalize(&final_normals[1]);
+            vec3_normalize(&final_normals[2]);
+
             vec3_t face_normals[3];
             face_normals[0] = calculate_face_normal(transformed_vertices[0],
                 transformed_vertices[1], transformed_vertices[2]);
@@ -321,6 +338,18 @@ void rendering_pipeline(mesh_t *mesh) {
                 transformed_vertices[0], transformed_vertices[1]);
             face_normals[2] = calculate_face_normal(transformed_vertices[1],
                 transformed_vertices[2], transformed_vertices[0]);
+
+            /*
+            printf("calculated normals\n");
+            log_vec3(face_normals[0]);
+            log_vec3(face_normals[1]);
+            log_vec3(face_normals[2]);
+            
+            printf("transformed loaded normals\n");
+            log_vec3(final_normals[0]);
+            log_vec3(final_normals[1]);
+            log_vec3(final_normals[2]);
+            */
             
             triangle_t triangle_to_render = {
                 {
@@ -336,6 +365,11 @@ void rendering_pipeline(mesh_t *mesh) {
                 0xFF00FF00,
                 mesh->texture,
                 /*
+                {
+                    {final_normals[0].x, final_normals[0].y, final_normals[0].z},
+                    {final_normals[1].x, final_normals[1].y, final_normals[1].z},
+                    {final_normals[2].x, final_normals[2].y, final_normals[2].z}
+                }
                 {
                     {mesh_face.na.x, mesh_face.na.y, mesh_face.na.z},
                     {mesh_face.nb.x, mesh_face.nb.y, mesh_face.nb.z},
@@ -353,6 +387,10 @@ void rendering_pipeline(mesh_t *mesh) {
             // save the projected triangle in an array of triangles to render
             // this is going to turn very slow in the future, but'll be fixed soon
             vec3_t origin = {0, 0, 0};
+            vec3_t average_normal = vec3_add(&final_normals[0], &final_normals[1]);
+            average_normal = vec3_add(&average_normal, &final_normals[2]);
+            average_normal = vec3_div(&average_normal, 3);
+
             if (culling(&face_normals[0], transformed_vertices, origin) >= 0 
                 && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
                 triangles_to_render[num_triangles_to_render++] = triangle_to_render;
@@ -409,7 +447,7 @@ void free_resources(void) {
 }
 
 int main(int argc, char *argv[]) {
-    
+   
     is_running = initialize_window();
     setup();
 
