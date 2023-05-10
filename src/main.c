@@ -252,7 +252,7 @@ void rendering_pipeline(mesh_t *mesh) {
     world_matrix = mat4_mult_mat4(&translation_matrix, &world_matrix);
 
     mat4_t normal_matrix = mat4_inverse(&world_matrix);
-    normal_matrix = mat4_transpose(&normal_matrix);
+    //normal_matrix = mat4_transpose(&normal_matrix);
 
     int n_faces = array_length(mesh->faces);
     for (int i = 0; i < n_faces; i++) {
@@ -282,9 +282,7 @@ void rendering_pipeline(mesh_t *mesh) {
             transformed_vertices[j] = transformed_vertex;
 
             vec4_t transformed_normal = vec4_from_vec3(raw_face_normals[j]);
-            transformed_normal.w = 0.0;
-            transformed_normal = mat4_mult_vec4(&normal_matrix, &transformed_normal);
-            //transformed_normal = mat4_mult_vec4(&view_matrix, &transformed_normal);
+            transformed_normal = mat4_mult_vec4_dir(&normal_matrix, &transformed_normal);
             transformed_normals[j] = transformed_normal;
         }
 
@@ -364,23 +362,23 @@ void rendering_pipeline(mesh_t *mesh) {
                 },
                 0xFF00FF00,
                 mesh->texture,
-                /*
                 {
                     {final_normals[0].x, final_normals[0].y, final_normals[0].z},
                     {final_normals[1].x, final_normals[1].y, final_normals[1].z},
                     {final_normals[2].x, final_normals[2].y, final_normals[2].z}
                 }
+                /*
                 {
                     {mesh_face.na.x, mesh_face.na.y, mesh_face.na.z},
                     {mesh_face.nb.x, mesh_face.nb.y, mesh_face.nb.z},
                     {mesh_face.nc.x, mesh_face.nc.y, mesh_face.nc.z}
                 }
-                */
                 {
                     {face_normals[0].x, face_normals[0].y, face_normals[0].z},
                     {face_normals[1].x, face_normals[1].y, face_normals[1].z},
                     {face_normals[2].x, face_normals[2].y, face_normals[2].z}
                 }
+                */
                 //face_normal
             };
 
