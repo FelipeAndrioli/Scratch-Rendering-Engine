@@ -235,7 +235,7 @@ void draw_colored_pixel(int x, int y, triangle_t *face, color_t color) {
     if (get_zbuffer_at(x, y) > interpolated_w) {
         gouraud_shading(face, &color, alpha, beta, gamma);
         draw_pixel(x, y, color);
-        //update_zbuffer_at(x, y, interpolated_w);
+        update_zbuffer_at(x, y, interpolated_w);
     }
 }
 
