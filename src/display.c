@@ -208,7 +208,7 @@ void draw_texel(int x, int y, triangle_t *face, upng_t *texture) {
         color_t color = texture_buffer[(texture_width * texture_y) + texture_x]; 
 
         //flat_shading(face, &color);
-        //gouraud_shading(face, &color, alpha, beta, gamma);
+        gouraud_shading(face, &color, alpha, beta, gamma);
         draw_pixel(x, y, color);
         // update z buffer
         update_zbuffer_at(x, y, interpolated_w);
