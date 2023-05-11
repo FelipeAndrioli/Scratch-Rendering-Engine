@@ -316,45 +316,8 @@ void draw_filled_triangle(triangle_t triangle, color_t color) {
 
 void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
     // Flat-top && flat-bottom triangle rendering technique
-    if (face->points[0].y > face->points[1].y) {
-        float_swap(&face->points[0].y, &face->points[1].y);
-        float_swap(&face->points[0].x, &face->points[1].x);
-        float_swap(&face->points[0].z, &face->points[1].z);
-        float_swap(&face->points[0].w, &face->points[1].w);
-   
-        float_swap(&face->face_normals[0].y, &face->face_normals[1].y);
-        float_swap(&face->face_normals[0].x, &face->face_normals[1].x);
-        float_swap(&face->face_normals[0].z, &face->face_normals[1].z);
 
-        float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
-        float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
-    }
-    if (face->points[1].y > face->points[2].y) {
-        float_swap(&face->points[1].y, &face->points[2].y);
-        float_swap(&face->points[1].x, &face->points[2].x);
-        float_swap(&face->points[1].z, &face->points[2].z);
-        float_swap(&face->points[1].w, &face->points[2].w);
-        
-        float_swap(&face->face_normals[1].y, &face->face_normals[2].y);
-        float_swap(&face->face_normals[1].x, &face->face_normals[2].x);
-        float_swap(&face->face_normals[1].z, &face->face_normals[2].z);
-        
-        float_swap(&face->texcoords[1].u, &face->texcoords[2].u);
-        float_swap(&face->texcoords[1].v, &face->texcoords[2].v);
-    }
-    if (face->points[0].y > face->points[1].y) {
-        float_swap(&face->points[0].y, &face->points[1].y);
-        float_swap(&face->points[0].x, &face->points[1].x);
-        float_swap(&face->points[0].z, &face->points[1].z);
-        float_swap(&face->points[0].w, &face->points[1].w);
-        
-        float_swap(&face->face_normals[0].y, &face->face_normals[1].y);
-        float_swap(&face->face_normals[0].x, &face->face_normals[1].x);
-        float_swap(&face->face_normals[0].z, &face->face_normals[1].z);
-        
-        float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
-        float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
-    }
+    order_triangle(face);
 
     // invert the V's
     face->texcoords[0].v = 1.0 - face->texcoords[0].v;
@@ -419,7 +382,57 @@ void draw_triangle(triangle_t *face, color_t color, upng_t *texture) {
     }
 }
 
-float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
+
+void order_triangle(triangle_t *face) {
+    if (face->points[0].y > face->points[1].y) {
+        float_swap(&face->points[0].y, &face->points[1].y);
+        float_swap(&face->points[0].x, &face->points[1].x);
+        float_swap(&face->points[0].z, &face->points[1].z);
+        float_swap(&face->points[0].w, &face->points[1].w);
+   
+        float_swap(&face->face_normals[0].y, &face->face_normals[1].y);
+        float_swap(&face->face_normals[0].x, &face->face_normals[1].x);
+        float_swap(&face->face_normals[0].z, &face->face_normals[1].z);
+
+        float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
+        float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
+    }
+    if (face->points[1].y > face->points[2].y) {
+        float_swap(&face->points[1].y, &face->points[2].y);
+        float_swap(&face->points[1].x, &face->points[2].x);
+        float_swap(&face->points[1].z, &face->points[2].z);
+        float_swap(&face->points[1].w, &face->points[2].w);
+        
+        float_swap(&face->face_normals[1].y, &face->face_normals[2].y);
+        float_swap(&face->face_normals[1].x, &face->face_normals[2].x);
+        float_swap(&face->face_normals[1].z, &face->face_normals[2].z);
+        
+        float_swap(&face->texcoords[1].u, &face->texcoords[2].u);
+        float_swap(&face->texcoords[1].v, &face->texcoords[2].v);
+    }
+    if (face->points[0].y > face->points[1].y) {
+        float_swap(&face->points[0].y, &face->points[1].y);
+        float_swap(&face->points[0].x, &face->points[1].x);
+        float_swap(&face->points[0].z, &face->points[1].z);
+        float_swap(&face->points[0].w, &face->points[1].w);
+        
+        float_swap(&face->face_normals[0].y, &face->face_normals[1].y);
+        float_swap(&face->face_normals[0].x, &face->face_normals[1].x);
+        float_swap(&face->face_normals[0].z, &face->face_normals[1].z);
+        
+        float_swap(&face->texcoords[0].u, &face->texcoords[1].u);
+        float_swap(&face->texcoords[0].v, &face->texcoords[1].v);
+    }
+}
+
+int is_face_clockwise(triangle_t *face) {
+    return (face->points[1].x - face->points[0].x) * 
+            (face->points[2].y - face->points[0].y) - 
+            (face->points[2].x - face->points[0].x) * 
+            (face->points[1].y - face->points[0].y);
+}
+
+float normal_based_culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
     if (!rendering_options.CULLING_BACKFACE) {
         return 0;
     }
@@ -430,6 +443,11 @@ float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position) {
     float face_alignment = vec3_dot(face_normal, &camera_ray);
 
     return face_alignment;
+}
+
+int culling(triangle_t *triangle) {
+    if (!rendering_options.CULLING_BACKFACE) return 1;
+    return is_face_clockwise(triangle);
 }
 
 void draw(triangle_t triangle) {

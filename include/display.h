@@ -42,7 +42,10 @@ void fill_flat_top_triangle(int x0, int y0, int x1, int y1, int x2, int y2, colo
 void draw_filled_triangle(triangle_t triangle, color_t color);
 void draw_triangle(triangle_t *face, color_t color, upng_t *texture);
 
-float culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position);
+void order_triangle(triangle_t *face);
+int is_face_clockwise(triangle_t *face);
+float normal_based_culling(vec3_t *face_normal, vec4_t *vertices, vec3_t camera_position);
+int culling(triangle_t *triangle);
 void draw(triangle_t triangle);
 
 void set_window_dim(int width, int height);

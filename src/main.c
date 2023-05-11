@@ -328,27 +328,7 @@ void rendering_pipeline(mesh_t *mesh) {
             vec3_normalize(&final_normals[0]);
             vec3_normalize(&final_normals[1]);
             vec3_normalize(&final_normals[2]);
-
-            vec3_t face_normals[3];
-            face_normals[0] = calculate_face_normal(transformed_vertices[0],
-                transformed_vertices[1], transformed_vertices[2]);
-            face_normals[1] = calculate_face_normal(transformed_vertices[2],
-                transformed_vertices[0], transformed_vertices[1]);
-            face_normals[2] = calculate_face_normal(transformed_vertices[1],
-                transformed_vertices[2], transformed_vertices[0]);
-
-            /*
-            printf("calculated normals\n");
-            log_vec3(face_normals[0]);
-            log_vec3(face_normals[1]);
-            log_vec3(face_normals[2]);
-            
-            printf("transformed loaded normals\n");
-            log_vec3(final_normals[0]);
-            log_vec3(final_normals[1]);
-            log_vec3(final_normals[2]);
-            */
-            
+           
             triangle_t triangle_to_render = {
                 {
                     {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
@@ -367,30 +347,9 @@ void rendering_pipeline(mesh_t *mesh) {
                     {final_normals[1].x, final_normals[1].y, final_normals[1].z},
                     {final_normals[2].x, final_normals[2].y, final_normals[2].z}
                 }
-                /*
-                {
-                    {mesh_face.na.x, mesh_face.na.y, mesh_face.na.z},
-                    {mesh_face.nb.x, mesh_face.nb.y, mesh_face.nb.z},
-                    {mesh_face.nc.x, mesh_face.nc.y, mesh_face.nc.z}
-                }
-                {
-                    {face_normals[0].x, face_normals[0].y, face_normals[0].z},
-                    {face_normals[1].x, face_normals[1].y, face_normals[1].z},
-                    {face_normals[2].x, face_normals[2].y, face_normals[2].z}
-                }
-                */
-                //face_normal
             };
-
-            // save the projected triangle in an array of triangles to render
-            // this is going to turn very slow in the future, but'll be fixed soon
-            vec3_t origin = {0, 0, 0};
-            vec3_t average_normal = vec3_add(&final_normals[0], &final_normals[1]);
-            average_normal = vec3_add(&average_normal, &final_normals[2]);
-            average_normal = vec3_div(&average_normal, 3);
-
-            if (culling(&face_normals[0], transformed_vertices, origin) >= 0 
-                && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
+   
+            if (culling(&triangle_to_render) > 0 && num_triangles_to_render < MAX_TRIANGLES_PER_MESH) {
                 triangles_to_render[num_triangles_to_render++] = triangle_to_render;
             }
         }

@@ -16,7 +16,6 @@ void process_line(mesh_t *mesh, char *line);
 void process_char(char* vertex);
 void process_face(mesh_t *mesh, char *line);
 void process_vertex(mesh_t *mesh, char *vertex);
-void process_normals(char *line);
 void process_texture(char *line);
 
 extern tex2_t *uvs;
